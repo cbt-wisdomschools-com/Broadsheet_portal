@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login · Wisdom Foundation Portal</title>
+
+<!-- Firebase compat SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f7efe0 0%, #e8d7ba 100%);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1f1c18;
+  }
+  .login-card {
+    background: white;
+    border: 2px solid #b87c44;
+    border-radius: 14px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 30px rgba(122, 63, 14, 0.18);
+  }
+  h1 {
+    margin: 0 0 6px;
+    font-size: 1.5rem;
+    color: #7a3f0e;
+    text-align: center;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #6f6456;
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin: 14px 0 6px;
+    color: #5f3d1a;
+  }
+  input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #b87c44;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #fdfaf5;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  input:focus {
+    outline: none;
+    border-color: #7a3f0e;
+    background: white;
+  }
+  button {
+    width: 100%;
+    margin-top: 22px;
+    padding: 13px;
+    background: #b55a1a;
+    color: white;
+    border: 2px solid #7d3c0c;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #5f2e0a;
+    transition: 0.1s;
+  }
+  button:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #5f2e0a;
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .status {
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+  }
+  .status.error   { display: block; background: #ffcdd2; color: #8b1a1a; }
+  .status.info    { display: block; background: #bbdefb; color: #0d3b66; }
+  .status.success { display: block; background: #c8e6c9; color: #1e4a2a; }
+  .footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #9a8b78;
+  }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <h1>🏫 Wisdom Foundation</h1>
+  <div class="subtitle">First Term Records Portal · 2026/2027</div>
+
+  <form id="loginForm" autocomplete="off">
+    <label for="email">Email Address</label>
+    <input type="email" id="email" placeholder="wisfos4edu@gmail.com" required>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="••••••••" required>
+
+    <button type="submit" id="loginBtn">Sign In</button>
+  </form>
+
+  <div class="status" id="status"></div>
+
+  <div class="footer">Authorized users only · Wisdom Foundation © 2026</div>
+</div>
+
+<script>
+/* ============================================================
+   1. FIREBASE CONFIG (wisdom-firsterm-records26-27)
+   ============================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBcbySKjFMndLDDYr6XOKPoX0rcUqY5dp4",
+  authDomain:        "wisdom-firsterm-records26-27.firebaseapp.com",
+  databaseURL:       "https://wisdom-firsterm-records26-27-default-rtdb.firebaseio.com",
+  projectId:         "wisdom-firsterm-records26-27",
+  storageBucket:     "wisdom-firsterm-records26-27.firebasestorage.app",
+  messagingSenderId: "476083129496",
+  appId:             "1:476083129496:web:25fcd0a42a1c10bfa7d4ed",
+  measurementId:     "G-0PJ3GJYY80"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+/* ============================================================
+   2. HARDCODED CREDENTIALS (must ALSO match)
+   ============================================================ */
+const HARDCODED_EMAIL    = "wisfos4edu@gmail.com";
+const HARDCODED_PASSWORD = "admin@wisfos";
+
+/* ============================================================
+   3. DOM
+   ============================================================ */
+const form     = document.getElementById("loginForm");
+const emailEl  = document.getElementById("email");
+const passEl   = document.getElementById("password");
+const btn      = document.getElementById("loginBtn");
+const statusEl = document.getElementById("status");
+
+function setStatus(msg, type = "info") {
+  statusEl.className = "status " + type;
+  statusEl.textContent = msg;
+}
+function clearStatus() {
+  statusEl.className = "status";
+  statusEl.textContent = "";
+}
+
+/* ============================================================
+   4. IF ALREADY LOGGED IN (sessionStorage flag set)
+   ============================================================ */
+if (sessionStorage.getItem("wfs_logged_in") === "true") {
+  window.location.replace("dashboard.html");
+}
+
+/* ============================================================
+   5. LOGIN HANDLER
+   ============================================================ */
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  clearStatus();
+
+  const email    = emailEl.value.trim();
+  const password = passEl.value;
+
+  if (!email || !password) {
+    setStatus("Please fill in both fields.", "error");
+    return;
+  }
+
+  // ---- CHECK 1: hardcoded match ----
+  if (email !== HARDCODED_EMAIL || password !== HARDCODED_PASSWORD) {
+    setStatus("❌ Invalid email or password.", "error");
+    return;
+  }
+
+  // ---- CHECK 2: Firebase Auth ----
+  btn.disabled = true;
+  btn.textContent = "Signing in…";
+  setStatus("⏳ Verifying credentials…", "info");
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+
+    // Both checks passed
+    sessionStorage.setItem("wfs_logged_in", "true");
+    sessionStorage.setItem("wfs_user_email", email);
+    sessionStorage.setItem("wfs_login_time", new Date().toISOString());
+
+    setStatus("✅ Login successful. Redirecting…", "success");
+    setTimeout(() => window.location.replace("dashboard.html"), 600);
+
+  } catch (err) {
+    console.error("Auth error:", err);
+    let msg = "❌ Firebase authentication failed.";
+    if (err.code === "auth/wrong-password")     msg = "❌ Incorrect password.";
+    if (err.code === "auth/user-not-found")     msg = "❌ No account found for that email.";
+    if (err.code === "auth/invalid-email")      msg = "❌ Invalid email format.";
+    if (err.code === "auth/too-many-requests")  msg = "❌ Too many attempts. Try again later.";
+    if (err.code === "auth/network-request-failed") msg = "❌ Network error. Check your connection.";
+    setStatus(msg, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Sign In";
+  }
+});
+</script>
+</body>
+</html>
