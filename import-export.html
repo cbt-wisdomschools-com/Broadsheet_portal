@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Import / Export · Wisdom Foundation Portal</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f7efe0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1f1c18;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  header.topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 18px;
+  }
+  header.topbar h1 { margin: 0; font-size: 1.4rem; color: #7a3f0e; }
+  header.topbar .meta { font-size: 0.8rem; color: #6f6456; }
+
+  .btn {
+    padding: 10px 22px; border-radius: 40px; font-weight: 700;
+    font-size: 0.85rem; cursor: pointer; transition: 0.1s;
+    border: 2px solid; font-family: inherit;
+  }
+  .btn-primary  { background:#b55a1a; color:#fff; border-color:#7d3c0c; box-shadow:3px 3px 0 #5f2e0a; }
+  .btn-primary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #5f2e0a; }
+  .btn-secondary{ background:#1e2f3f; color:#fff; border-color:#1a2937; box-shadow:3px 3px 0 #0f1a24; }
+  .btn-secondary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #0f1a24; }
+  .btn-success  { background:#2b6e4e; color:#fff; border-color:#1f5a3e; box-shadow:3px 3px 0 #1a452f; }
+  .btn-success:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #1a452f; }
+  .btn-danger   { background:#8b1a1a; color:#fff; border-color:#5f0f0f; box-shadow:3px 3px 0 #3d0a0a; }
+  .btn-danger:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #3d0a0a; }
+  .btn-warning  { background:#b6692a; color:#fff; border-color:#9a5621; box-shadow:3px 3px 0 #7a4419; }
+  .btn-warning:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #7a4419; }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none; }
+
+  .card {
+    background:#fff; border:2px solid #b87c44; border-radius:12px;
+    padding:22px 20px; margin-bottom:18px;
+    box-shadow:0 6px 16px rgba(122,63,14,0.08);
+  }
+  .card h2 {
+    margin:0 0 14px; font-size:1.05rem; color:#7a3f0e;
+    border-bottom:2px double #d7b893; padding-bottom:8px;
+  }
+  .card h3 { margin:0 0 10px; font-size:0.95rem; color:#5f3d1a; }
+  .card p.hint { font-size:0.82rem; color:#6f6456; margin:0 0 14px; }
+
+  label {
+    display:block; font-weight:600; font-size:0.78rem;
+    margin:10px 0 4px; color:#5f3d1a;
+  }
+  input, select {
+    width:100%; padding:9px 11px; border:2px solid #d7b893;
+    border-radius:6px; font-size:0.88rem; background:#fdfaf5;
+    font-family:inherit; transition:border-color 0.15s;
+  }
+  input:focus, select:focus { outline:none; border-color:#7a3f0e; background:#fff; }
+  input[type="file"] { padding:6px; background:#fdfaf5; }
+
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  @media (max-width:900px){ .grid-4 { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:640px){ .grid-4, .grid-3, .grid-2 { grid-template-columns:1fr; } }
+
+  .checkbox-row {
+    display:flex; gap:16px; flex-wrap:wrap; align-items:center;
+    padding:8px 0; font-size:0.85rem;
+  }
+  .checkbox-row label {
+    display:flex; align-items:center; gap:6px; cursor:pointer;
+    margin:0; font-weight:500;
+  }
+  .checkbox-row input[type="checkbox"] { width:16px; height:16px; accent-color:#b55a1a; }
+
+  .actions { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; }
+
+  .tabs {
+    display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;
+  }
+  .tab-btn {
+    padding:10px 22px; border-radius:40px; font-weight:700;
+    font-size:0.85rem; cursor:pointer; transition:0.1s;
+    border:2px solid #b87c44; background:#fdfaf5; color:#5f3d1a;
+  }
+  .tab-btn.active {
+    background:#b55a1a; color:#fff; border-color:#7d3c0c;
+    box-shadow:3px 3px 0 #5f2e0a;
+  }
+
+  table.preview {
+    width:100%; border-collapse:collapse; font-size:0.78rem;
+    margin-top:10px;
+  }
+  table.preview th, table.preview td {
+    border:1px solid #d7b893; padding:4px 6px; text-align:center;
+  }
+  table.preview th {
+    background:#f5ede0; color:#5f3d1a; font-size:0.72rem;
+    font-weight:700; white-space:nowrap; position:sticky; top:0;
+  }
+  table.preview td.name { text-align:left; font-weight:600; padding-left:8px; }
+  table.preview tr.row-ok     td { background:#e8f5e9; }
+  table.preview tr.row-warn   td { background:#fff8e1; }
+  table.preview tr.row-error  td { background:#ffebee; }
+  table.preview tr.row-skip   td { background:#eceff1; color:#888; }
+  table.preview .status-cell  { font-weight:700; font-size:0.75rem; }
+  table.preview tr.row-ok     .status-cell { color:#2b6e4e; }
+  table.preview tr.row-warn   .status-cell { color:#b6692a; }
+  table.preview tr.row-error  .status-cell { color:#8b1a1a; }
+
+  .preview-wrap { max-height:420px; overflow:auto; border:1px solid #d7b893; border-radius:8px; }
+
+  .log-area {
+    background:#1e1a16; color:#e8e0d6;
+    padding:14px; border-radius:8px; max-height:340px;
+    overflow-y:auto; font-family:'Courier New', monospace;
+    font-size:0.75rem; line-height:1.55;
+    white-space:pre-wrap; margin-top:10px;
+  }
+  .log-area .success { color:#81c784; }
+  .log-area .error   { color:#ef9a9a; }
+  .log-area .info    { color:#90caf9; }
+  .log-area .warn    { color:#ffd54f; }
+
+  .progress-container {
+    background:#f5ede0; border:1px solid #b87c44; border-radius:8px;
+    padding:12px; margin:12px 0; display:none;
+  }
+  .progress-container.show { display:block; }
+  .progress-label { font-size:0.85rem; font-weight:600; color:#5f3d1a; margin-bottom:6px; }
+  .progress-bar {
+    width:100%; height:24px; background:#ddd; border-radius:12px;
+    overflow:hidden; position:relative;
+  }
+  .progress-fill {
+    height:100%; background:linear-gradient(90deg,#2b6e4e,#4caf50);
+    border-radius:12px; transition:width 0.3s ease;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:0.75rem; font-weight:700;
+  }
+
+  .status {
+    margin-top:14px; padding:11px 16px; border-radius:8px;
+    font-size:0.85rem; font-weight:600; display:none; text-align:center;
+  }
+  .status.info    { display:block; background:#bbdefb; color:#0d3b66; }
+  .status.error   { display:block; background:#ffcdd2; color:#8b1a1a; }
+  .status.success { display:block; background:#c8e6c9; color:#1e4a2a; }
+  .status.warning { display:block; background:#fff3cd; color:#7a5a0a; }
+
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; }
+
+  .divider { height:1px; background:#e8d7ba; margin:18px 0; }
+
+  .summary-row {
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;
+  }
+  .summary-pill {
+    padding:8px 16px; border-radius:20px; font-weight:700;
+    font-size:0.8rem; border:2px solid;
+  }
+  .pill-green  { background:#c8e6c9; color:#1e4a2a; border-color:#2b6e4e; }
+  .pill-yellow { background:#fff3cd; color:#7a5a0a; border-color:#b6692a; }
+  .pill-red    { background:#ffcdd2; color:#8b1a1a; border-color:#8b1a1a; }
+  .pill-grey   { background:#eceff1; color:#555;    border-color:#888; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="topbar">
+    <div>
+      <h1>📥📤 Import / Export · Wisdom Foundation</h1>
+      <div class="meta" id="meta">Initializing…</div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-secondary" id="backBtn">← Dashboard</button>
+      <button class="btn btn-danger" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div id="status" class="status"></div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="import">📥 Import Scores</button>
+    <button class="tab-btn" data-tab="export">📤 Export</button>
+    <button class="tab-btn" data-tab="backup">💾 Backup / Restore</button>
+  </div>
+
+  <!-- ======================= IMPORT TAB ======================= -->
+  <div class="tab-panel active" id="tab-import">
+
+    <div class="card">
+      <h2>Step 1 · Choose what to import</h2>
+      <div class="grid-3">
+        <div>
+          <label>Session</label>
+          <select id="impSession">
+            <option value="">— select —</option>
+            <option value="2026-2027">2026 – 2027</option>
+            <option value="2027-2028">2027 – 2028</option>
+            <option value="2028-2029">2028 – 2029</option>
+          </select>
+        </div>
+        <div>
+          <label>Class</label>
+          <select id="impClass">
+            <option value="">— select —</option>
+            <option value="JSS1">JSS 1</option>
+            <option value="JSS2">JSS 2</option>
+            <option value="JSS3">JSS 3</option>
+            <option value="SS1">SS 1</option>
+            <option value="SS2">SS 2</option>
+            <option value="SS3">SS 3</option>
+          </select>
+        </div>
+        <div>
+          <label>Subject</label>
+          <select id="impSubject" disabled>
+            <option value="">— select class first —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="downloadTemplateBtn" disabled>📄 Download Template CSV</button>
+      </div>
+      <p class="hint" style="margin-top:10px;">
+        The template will contain one row per student in the selected class, with <code>student_key</code>
+        and <code>student_name</code> pre-filled and the score columns left blank.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Step 2 · Upload filled CSV</h2>
+      <input type="file" id="csvFile" accept=".csv,text/csv">
+
+      <div class="checkbox-row" style="margin-top:12px;">
+        <label><input type="checkbox" id="overwriteExisting"> Overwrite existing values in Firebase</label>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-warning" id="previewBtn" disabled>🔍 Preview</button>
+        <button class="btn btn-success" id="importBtn" disabled>✅ Import Valid Rows</button>
+        <button class="btn btn-secondary" id="clearImportBtn">🗑️ Clear</button>
+      </div>
+    </div>
+
+    <div class="card" id="previewCard" style="display:none;">
+      <h2>Step 3 · Preview &amp; Validate</h2>
+      <div class="summary-row" id="summaryRow"></div>
+      <div class="preview-wrap">
+        <table class="preview" id="previewTable"></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Log</h2>
+      <div class="progress-container" id="impProgressWrap">
+        <div class="progress-label" id="impProgressLabel">Progress…</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="impProgressFill" style="width:0%;">0%</div>
+        </div>
+      </div>
+      <div class="log-area" id="impLog">⏳ Waiting.</div>
+    </div>
+
+  </div>
+
+  <!-- ======================= EXPORT TAB ======================= -->
+  <div class="tab-panel" id="tab-export">
+
+    <div class="card">
+      <h2>📄 Export one student</h2>
+      <p class="hint">Download a CSV of every subject row for one student.</p>
+      <div class="grid-3">
+        <div>
+          <label>Session</label>
+          <select id="expStudentSession">
+            <option value="">— select —</option>
+            <option value="2026-2027">2026 – 2027</option>
+            <option value="2027-2028">2027 – 2028</option>
+            <option value="2028-2029">2028 – 2029</option>
+          </select>
+        </div>
+        <div>
+          <label>Class</label>
+          <select id="expStudentClass">
+            <option value="">— select —</option>
+            <option value="JSS1">JSS 1</option>
+            <option value="JSS2">JSS 2</option>
+            <option value="JSS3">JSS 3</option>
+            <option value="SS1">SS 1</option>
+            <option value="SS2">SS 2</option>
+            <option value="SS3">SS 3</option>
+          </select>
+        </div>
+        <div>
+          <label>Student</label>
+          <select id="expStudentName" disabled>
+            <option value="">— select class first —</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="exportStudentBtn" disabled>📄 Export Student CSV</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Export class broadsheet</h2>
+      <p class="hint">One row per student. One total column per subject, plus grand total, average, and position.</p>
+      <div class="grid-3">
+        <div>
+          <label>Session</label>
+          <select id="expClassSession">
+            <option value="">— select —</option>
+            <option value="2026-2027">2026 – 2027</option>
+            <option value="2027-2028">2027 – 2028</option>
+            <option value="2028-2029">2028 – 2029</option>
+          </select>
+        </div>
+        <div>
+          <label>Class</label>
+          <select id="expClassClass">
+            <option value="">— select —</option>
+            <option value="JSS1">JSS 1</option>
+            <option value="JSS2">JSS 2</option>
+            <option value="JSS3">JSS 3</option>
+            <option value="SS1">SS 1</option>
+            <option value="SS2">SS 2</option>
+            <option value="SS3">SS 3</option>
+          </select>
+        </div>
+        <div>
+          <label>Include full details?</label>
+          <select id="expBroadsheetMode">
+            <option value="totals">Totals only (recommended)</option>
+            <option value="full">Full per-subject columns</option>
+          </select>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="exportClassBtn" disabled>📊 Export Broadsheet CSV</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Log</h2>
+      <div class="log-area" id="expLog">⏳ Waiting.</div>
+    </div>
+
+  </div>
+
+  <!-- ======================= BACKUP TAB ======================= -->
+  <div class="tab-panel" id="tab-backup">
+
+    <div class="card">
+      <h2>💾 Backup entire database</h2>
+      <p class="hint">Downloads a JSON file containing everything under <code>/reports</code>.</p>
+      <div class="actions">
+        <button class="btn btn-primary" id="backupBtn">💾 Download Backup JSON</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📥 Restore from backup</h2>
+      <p class="hint">
+        Upload a previously-downloaded backup JSON. <strong>This will overwrite</strong> everything under
+        <code>/reports</code> — you'll be asked to confirm first.
+      </p>
+      <input type="file" id="restoreFile" accept=".json,application/json">
+      <div class="actions">
+        <button class="btn btn-danger" id="restoreBtn" disabled>⚠️ Restore Backup (overwrite)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Log</h2>
+      <div class="log-area" id="backupLog">⏳ Waiting.</div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   1. FIREBASE CONFIG
+   ============================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBcbySKjFMndLDDYr6XOKPoX0rcUqY5dp4",
+  authDomain:        "wisdom-firsterm-records26-27.firebaseapp.com",
+  databaseURL:       "https://wisdom-firsterm-records26-27-default-rtdb.firebaseio.com",
+  projectId:         "wisdom-firsterm-records26-27",
+  storageBucket:     "wisdom-firsterm-records26-27.firebasestorage.app",
+  messagingSenderId: "476083129496",
+  appId:             "1:476083129496:web:25fcd0a42a1c10bfa7d4ed",
+  measurementId:     "G-0PJ3GJYY80"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.database();
+
+/* ============================================================
+   2. SESSION GUARD
+   ============================================================ */
+if (sessionStorage.getItem("wfs_logged_in") !== "true") {
+  window.location.replace("login.html");
+}
+auth.onAuthStateChanged((user) => {
+  if (!user) {
+    sessionStorage.removeItem("wfs_logged_in");
+    window.location.replace("login.html");
+  } else {
+    document.getElementById("meta").textContent = "Signed in as " + user.email;
+  }
+});
+
+/* ============================================================
+   3. USERS + SUBJECTS (must match dashboard/report/seed)
+   ============================================================ */
+const USERS = {
+  "JSS1": [
+    "Ademola Olamide K","Ige Promise J","Ojuoluwa David A","Tayo-Amos Samuel I",
+    "Adebayo Aishat S","Ajibade Fadesola Ike","Ayoola Veronica Inis",
+    "Chukwuemeka Tifeany S.","Ifeanyi Peace C","Ogunmiloyo Anjola J"
+  ],
+  "JSS2": [
+    "Shehu Ahmeed Marvelous","Fasuan Obaloluwa Adebowale","ojo pemisire adesewa"
+  ],
+  "JSS3": [
+    "George Emmanuel","Adejemilua Peter","Oke Ayobami","Chukwuemeka Emmanuel",
+    "Olorungbohunmi Ayo","Dada Tiwalade","Nafiu Habibat","Fasuan Adetutu",
+    "Salami Semilore","Shinaola Treasure","Adebisi Azeem S","Ajibade Adeola"
+  ],
+  "SS1": [
+    "Abdulateef Qudus Ademola","Isaac Richard Feranmi","Ogunmiloyo Inioluwa David",
+    "Oladiti David Henry","Adebayo Khadijat Iyanu","Akindele Dunsi Faith",
+    "Olusola Divine Oluwaseun","Umar Fatima Lamine","Ajisola Destiny K",
+    "Oladapo Fiyinfoluwa B","Salawudeen Abdulquadri B"
+  ],
+  "SS2": [
+    "Ajisafe Ezekeil","Omolade Darasimi","Owolabi Timilehin Testimony",
+    "Umar Aliyu","Oke Inumidun","Lawal Desmond","Adefisayo Abdul Akorede"
+  ],
+  "SS3": [
+    "Aborisadede Timilehin Ayomide","Adebisi Mahfouz Adewole","Adekunle Samuel Ayomikun",
+    "Adeyemi Obasanjo Toheeb","Ikpengwa Emmanuel","Olofintoye Victor Omobarewa",
+    "Olumide Erioluwa Emmanuel","Oluwadare Praise Ayowamide","Gabriel Victor Kachisieme",
+    "Adeola Precious Eniola","Afolalu Faith Toluwanimi","Olorunmaiye Nifemi Faith",
+    "Ariyo Elizabeth Celestina"
+  ]
+};
+
+const JUNIOR_SUBJECTS = [
+  { key:"mathematics",           label:"Mathematics" },
+  { key:"english_language",      label:"English Language" },
+  { key:"english_literature",    label:"Literature in English" },
+  { key:"intermediate_science",  label:"Intermediate Science" },
+  { key:"digital_technology",    label:"Computer Studies" },
+  { key:"food_and_nutrition",    label:"Food And Nutrition" },
+  { key:"livestock_farming",     label:"Livestock Farming" },
+  { key:"social_Studies",        label:"Social | Citizenship Studies" },
+  { key:"business_studies",      label:"Business Studies" },
+  { key:"cultural_and_creative_art", label:"Cultural & Creative Art" },
+  { key:"yoruba",                label:"Yoruba" },
+  { key:"phe",                   label:"Physical Health Education" },
+  { key:"crs",                   label:"Christian Religious Studies" },
+  { key:"french",                label:"French" },
+  { key:"music",                 label:"Music" },
+  { key:"phonetics",             label:"Phonetics | Diction" },
+  { key:"nigerian_history",      label:"History" },
+  { key:"agricultural_science",  label:"Agricultural Science" },
+  { key:"fine_art",              label:"Fine Art" },
+  { key:"ekiti_values",          label:"Ekiti Values" }
+];
+
+const SENIOR_SUBJECTS = [
+  { key:"mathematics",            label:"Mathematics" },
+  { key:"english_language",       label:"English Language" },
+  { key:"chemistry",              label:"Chemistry" },
+  { key:"biology",                label:"Biology" },
+  { key:"yoruba",                 label:"Yoruba" },
+  { key:"citizenship_education",  label:"Citizenship | Heritage Studies" },
+  { key:"livestock_farming",      label:"Livestock Farming" },
+  { key:"agricultural_science",   label:"Agricultural Science" },
+  { key:"literature_in_english",  label:"Literature in English" },
+  { key:"crs",                    label:"Christian Religious Studies" },
+  { key:"physics",                label:"Physics" },
+  { key:"digital_technology",     label:"Digital Technology" },
+  { key:"economics",              label:"Economics" },
+  { key:"geography",              label:"Geography" },
+  { key:"account",                label:"Financial Accounting" },
+  { key:"government",             label:"Government" },
+  { key:"commerce",               label:"Commerce" },
+  { key:"marketing",              label:"Marketing" },
+  { key:"fine_art",               label:"Fine Art" },
+  { key:"further_mathematics",    label:"Further Mathematics" },
+  { key:"history",                label:"Nigerian History" },
+  { key:"phonetics",              label:"Phonetics" }
+];
+
+/* ============================================================
+   4. HELPERS
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+const statusEl = $("status");
+
+function setStatus(msg, type = "info") {
+  statusEl.className = "status " + type;
+  statusEl.textContent = msg;
+}
+function log(areaId, msg, type = "info") {
+  const area = $(areaId);
+  const t = new Date().toLocaleTimeString();
+  const cls = ["success","error","info","warn"].includes(type) ? type : "info";
+  area.innerHTML += `\n<span class="${cls}">[${t}] ${msg}</span>`;
+  area.scrollTop = area.scrollHeight;
+}
+function clearLog(areaId, placeholder = "⏳ Waiting.") {
+  $(areaId).innerHTML = placeholder;
+}
+function studentKey(name) {
+  return name.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^\w_]/g, "");
+}
+function subjectsFor(cls) {
+  return cls && cls.startsWith("SS") ? SENIOR_SUBJECTS : JUNIOR_SUBJECTS;
+}
+function downloadBlob(filename, content, mime = "text/plain;charset=utf-8") {
+  const blob = new Blob([content], { type: mime });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 500);
+}
+
+/* CSV helpers — RFC-4180-safe */
+function csvEscape(v) {
+  if (v === null || v === undefined) return "";
+  const s = String(v);
+  if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+function csvRow(arr) { return arr.map(csvEscape).join(","); }
+function parseCSV(text) {
+  // Simple robust CSV parser supporting quoted fields, escaped quotes, CRLF/LF
+  const rows = [];
+  let row = [];
+  let cur = "";
+  let inQuotes = false;
+  let i = 0;
+  while (i < text.length) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i+1] === '"') { cur += '"'; i += 2; continue; }
+        inQuotes = false; i++; continue;
+      }
+      cur += c; i++; continue;
+    } else {
+      if (c === '"') { inQuotes = true; i++; continue; }
+      if (c === ",") { row.push(cur); cur = ""; i++; continue; }
+      if (c === "\n" || c === "\r") {
+        // handle CRLF
+        if (c === "\r" && text[i+1] === "\n") i++;
+        row.push(cur); rows.push(row); row = []; cur = ""; i++;
+        continue;
+      }
+      cur += c; i++; continue;
+    }
+  }
+  // last cell
+  if (cur !== "" || row.length > 0) { row.push(cur); rows.push(row); }
+  // drop trailing empty rows
+  while (rows.length && rows[rows.length-1].every(x => x === "")) rows.pop();
+  return rows;
+}
+
+/* ============================================================
+   5. TABS
+   ============================================================ */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    $("tab-" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+/* ============================================================
+   6. IMPORT — STEP 1
+   ============================================================ */
+const impSession = $("impSession");
+const impClass   = $("impClass");
+const impSubject = $("impSubject");
+
+function refreshSubjects() {
+  const cls = impClass.value;
+  impSubject.innerHTML = "";
+  if (!cls) {
+    impSubject.disabled = true;
+    impSubject.innerHTML = '<option value="">— select class first —</option>';
+    $("downloadTemplateBtn").disabled = true;
+    return;
+  }
+  impSubject.disabled = false;
+  impSubject.innerHTML = '<option value="">— select subject —</option>';
+  subjectsFor(cls).forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.key;
+    opt.textContent = s.label;
+    impSubject.appendChild(opt);
+  });
+  $("downloadTemplateBtn").disabled = true;
+}
+impClass.addEventListener("change", refreshSubjects);
+
+function checkTemplateReady() {
+  const ok = impSession.value && impClass.value && impSubject.value;
+  $("downloadTemplateBtn").disabled = !ok;
+}
+impSession.addEventListener("change", checkTemplateReady);
+impSubject.addEventListener("change", checkTemplateReady);
+
+/* ============================================================
+   7. DOWNLOAD TEMPLATE
+   ============================================================ */
+$("downloadTemplateBtn").addEventListener("click", () => {
+  const session = impSession.value;
+  const cls     = impClass.value;
+  const subjKey = impSubject.value;
+  const subj    = subjectsFor(cls).find(s => s.key === subjKey);
+  if (!session || !cls || !subj) return;
+
+  const students = USERS[cls] || [];
+  const lines = [];
+  lines.push(csvRow(["student_key","student_name","test1","test2","test3","ass1","ass2","ass3","exam","cummBf","pos"]));
+  students.forEach(name => {
+    lines.push(csvRow([studentKey(name), name, "", "", "", "", "", "", "", "", ""]));
+  });
+  const csv = "\uFEFF" + lines.join("\r\n") + "\r\n"; // BOM for Excel
+  const filename = `template_${session}_${cls}_${subj.key}.csv`;
+  downloadBlob(filename, csv, "text/csv;charset=utf-8");
+  log("impLog", `📄 Template downloaded: ${filename}`, "success");
+});
+
+/* ============================================================
+   8. IMPORT — STEP 2/3: parse, preview, validate
+   ============================================================ */
+const REQUIRED_COLS = ["student_key","student_name","test1","test2","test3","ass1","ass2","ass3","exam","cummBf","pos"];
+const SCORE_FIELDS  = ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf"];
+const MAX_SCORE     = { test1:100, test2:100, test3:100, ass1:100, ass2:100, ass3:100, exam:100, cummBf:100 };
+
+let parsedRows = null; // array of { rowIdx, student_key, student_name, values, status, issues }
+
+$("csvFile").addEventListener("change", () => {
+  const f = $("csvFile").files[0];
+  $("previewBtn").disabled = !f;
+  $("importBtn").disabled = true;
+  parsedRows = null;
+  $("previewCard").style.display = "none";
+});
+
+$("previewBtn").addEventListener("click", () => {
+  const file = $("csvFile").files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const text = e.target.result.replace(/^\uFEFF/, "");
+      const rows = parseCSV(text);
+      if (rows.length < 2) throw new Error("CSV has no data rows.");
+      const header = rows[0].map(h => h.trim());
+      // Validate header
+      const missing = REQUIRED_COLS.filter(c => !header.includes(c));
+      if (missing.length) throw new Error("Missing required columns: " + missing.join(", "));
+
+      parsedRows = buildPreview(rows, header);
+      renderPreview(parsedRows);
+      $("previewCard").style.display = "block";
+      $("importBtn").disabled = !parsedRows.some(r => r.status === "ok" || r.status === "warn");
+      log("impLog", `🔍 Parsed ${parsedRows.length} rows from ${file.name}`, "info");
+      setStatus(`Preview ready — ${parsedRows.filter(r=>r.status==="ok").length} valid, ${parsedRows.filter(r=>r.status==="warn").length} warnings, ${parsedRows.filter(r=>r.status==="error").length} errors.`, "info");
+    } catch (err) {
+      setStatus("❌ " + err.message, "error");
+      log("impLog", "❌ Parse error: " + err.message, "error");
+      parsedRows = null;
+      $("previewCard").style.display = "none";
+      $("importBtn").disabled = true;
+    }
+  };
+  reader.readAsText(file);
+});
+
+function buildPreview(rows, header) {
+  const session = impSession.value;
+  const cls     = impClass.value;
+  const validKeys = new Set((USERS[cls] || []).map(studentKey));
+  const col = {};
+  header.forEach((h, i) => col[h] = i);
+
+  const out = [];
+  for (let r = 1; r < rows.length; r++) {
+    const row = rows[r];
+    if (row.every(x => x === "")) continue;
+
+    const key = (row[col.student_key] || "").trim();
+    const name = (row[col.student_name] || "").trim();
+    const values = {};
+    const issues = [];
+
+    SCORE_FIELDS.forEach(f => {
+      const raw = (row[col[f]] ?? "").toString().trim();
+      if (raw === "") { values[f] = ""; return; }
+      if (!/^-?\d+(\.\d+)?$/.test(raw)) {
+        issues.push({ level:"error", field:f, msg:`${f} = "${raw}" is not a number` });
+        return;
+      }
+      const n = parseFloat(raw);
+      if (n < 0 || n > MAX_SCORE[f]) {
+        issues.push({ level:"error", field:f, msg:`${f} = ${n} out of range 0–${MAX_SCORE[f]}` });
+        return;
+      }
+      values[f] = n;
+    });
+
+    // pos is free text
+    const pos = (row[col.pos] ?? "").toString().trim();
+    values.pos = pos;
+
+    let status = "ok";
+    if (!key) {
+      status = "error";
+      issues.push({ level:"error", field:"student_key", msg:"student_key is empty" });
+    } else if (!validKeys.has(key)) {
+      status = "error";
+      issues.push({ level:"error", field:"student_key", msg:`unknown student_key "${key}" in ${cls}` });
+    }
+    const hasError = issues.some(i => i.level === "error");
+    const hasWarn  = issues.some(i => i.level === "warn");
+    if (hasError) status = "error";
+    else if (hasWarn) status = "warn";
+
+    out.push({ rowNum: r+1, student_key: key, student_name: name || "", values, issues, status });
+  }
+  return out;
+}
+
+function renderPreview(rows) {
+  const tbl = $("previewTable");
+  const scoreCols = SCORE_FIELDS.concat(["pos"]);
+  let html = "<thead><tr><th>#</th><th>Status</th><th>student_key</th><th>student_name</th>";
+  scoreCols.forEach(c => html += `<th>${c}</th>`);
+  html += "<th>Notes</th></tr></thead><tbody>";
+  rows.forEach(r => {
+    const cls = r.status === "ok" ? "row-ok" : r.status === "warn" ? "row-warn" : "row-error";
+    html += `<tr class="${cls}">`;
+    html += `<td>${r.rowNum}</td>`;
+    html += `<td class="status-cell">${r.status.toUpperCase()}</td>`;
+    html += `<td>${r.student_key}</td>`;
+    html += `<td class="name">${r.student_name || "—"}</td>`;
+    scoreCols.forEach(f => {
+      const v = r.values[f];
+      html += `<td>${v === "" ? "—" : v}</td>`;
+    });
+    html += `<td style="text-align:left; font-size:0.72rem;">${r.issues.map(i => i.msg).join("; ") || "—"}</td>`;
+    html += "</tr>";
+  });
+  html += "</tbody>";
+  tbl.innerHTML = html;
+
+  // summary pills
+  const ok = rows.filter(r => r.status === "ok").length;
+  const warn = rows.filter(r => r.status === "warn").length;
+  const err = rows.filter(r => r.status === "error").length;
+  $("summaryRow").innerHTML =
+    `<span class="summary-pill pill-green">✅ ${ok} valid</span>` +
+    `<span class="summary-pill pill-yellow">🟡 ${warn} warnings</span>` +
+    `<span class="summary-pill pill-red">🔴 ${err} errors</span>`;
+}
+
+/* ============================================================
+   9. IMPORT — WRITE TO FIREBASE
+   ============================================================ */
+$("importBtn").addEventListener("click", async () => {
+  if (!parsedRows || parsedRows.length === 0) return;
+  const session = impSession.value;
+  const cls     = impClass.value;
+  const subjKey = impSubject.value;
+  const subj    = subjectsFor(cls).find(s => s.key === subjKey);
+  const overwrite = $("overwriteExisting").checked;
+
+  if (!session || !cls || !subj) return;
+
+  const importable = parsedRows.filter(r => r.status === "ok" || r.status === "warn");
+  if (importable.length === 0) {
+    setStatus("⚠️ No valid rows to import.", "warning");
+    return;
+  }
+
+  if (!confirm(`Import ${importable.length} rows into /reports/${session}/${cls}/…\nSubject: ${subj.label}\nOverwrite existing: ${overwrite ? "YES" : "NO"}\n\nProceed?`)) return;
+
+  $("importBtn").disabled = true;
+  $("previewBtn").disabled = true;
+
+  const wrap = $("impProgressWrap");
+  wrap.classList.add("show");
+  const fill = $("impProgressFill");
+  const label = $("impProgressLabel");
+  let done = 0, written = 0, skipped = 0, failed = 0;
+  const total = importable.length;
+
+  for (const r of importable) {
+    const path = `/reports/${session}/${cls}/${r.student_key}/subjects/${subjKey}`;
+    try {
+      const existingSnap = overwrite ? null : await db.ref(path).once("value");
+      const existing = (existingSnap && existingSnap.val()) || {};
+
+      // If not overwriting, skip blank cells so we don't wipe existing data
+      const merged = {};
+      SCORE_FIELDS.forEach(f => { merged[f] = existing[f] ?? ""; });
+      merged.pos = existing.pos ?? "";
+
+      SCORE_FIELDS.forEach(f => {
+        const v = r.values[f];
+        if (v === "") {
+          if (overwrite) merged[f] = "";
+        } else {
+          merged[f] = v;
+        }
+      });
+      if (r.values.pos !== "") {
+        merged.pos = r.values.pos;
+      } else if (overwrite) {
+        merged.pos = "";
+      }
+
+      // Compute derived fields on write (same formulas as report.html)
+      const num = (x) => (typeof x === "number" && !isNaN(x)) ? x : 0;
+      const sum6 = num(merged.test1)+num(merged.test2)+num(merged.test3)+num(merged.ass1)+num(merged.ass2)+num(merged.ass3);
+      const casum = sum6 / 6;
+      const total_ = casum + (num(merged.exam) / 2);
+      const cummScore = (num(merged.cummBf) + total_) / 2;
+      const avg = cummScore;
+      let grade = "–";
+      if (avg >= 75) grade = "A";
+      else if (avg >= 65) grade = "B";
+      else if (avg >= 50) grade = "C";
+      else if (avg >= 40) grade = "D";
+      else if (avg > 0)   grade = "F";
+      const anyData = sum6 > 0 || num(merged.exam) > 0 || num(merged.cummBf) > 0;
+
+      merged.casum     = anyData ? casum.toFixed(2)     : "";
+      merged.total     = anyData ? total_.toFixed(2)    : "";
+      merged.cummScore = anyData ? cummScore.toFixed(2) : "";
+      merged.avg       = anyData ? avg.toFixed(2)       : "";
+      merged.grade     = anyData ? grade                : "";
+
+      // Skip if nothing changed and not overwriting? (still write to keep meta)
+      await db.ref(path).set(merged);
+      written++;
+      done++;
+      if (done % 5 === 0 || done === total) {
+        const pct = Math.round((done/total)*100);
+        fill.style.width = pct + "%"; fill.textContent = pct + "%";
+        label.textContent = `Progress: ${done} / ${total}`;
+      }
+    } catch (err) {
+      failed++;
+      log("impLog", `❌ Failed ${r.student_key}: ${err.message}`, "error");
+      done++;
+    }
+  }
+
+  fill.style.width = "100%"; fill.textContent = "100%";
+  label.textContent = `Done — ${written} written, ${skipped} skipped, ${failed} failed`;
+  log("impLog", `✅ Import complete: ${written} written · ${skipped} skipped · ${failed} failed`, "success");
+  setStatus(`✅ Import complete — ${written} written · ${failed} failed.`, failed > 0 ? "warning" : "success");
+
+  $("importBtn").disabled = false;
+  $("previewBtn").disabled = false;
+  setTimeout(() => wrap.classList.remove("show"), 3000);
+});
+
+$("clearImportBtn").addEventListener("click", () => {
+  $("csvFile").value = "";
+  $("previewBtn").disabled = true;
+  $("importBtn").disabled = true;
+  $("previewCard").style.display = "none";
+  parsedRows = null;
+  clearLog("impLog");
+  setStatus("Cleared.", "info");
+});
+
+/* ============================================================
+   10. EXPORT — STUDENT
+   ============================================================ */
+const expStudentClass = $("expStudentClass");
+const expStudentName  = $("expStudentName");
+const expStudentSession = $("expStudentSession");
+const exportStudentBtn = $("exportStudentBtn");
+
+function refreshExportStudentList() {
+  const cls = expStudentClass.value;
+  expStudentName.innerHTML = "";
+  if (!cls) {
+    expStudentName.disabled = true;
+    expStudentName.innerHTML = '<option value="">— select class first —</option>';
+    exportStudentBtn.disabled = true;
+    return;
+  }
+  expStudentName.disabled = false;
+  expStudentName.innerHTML = '<option value="">— select student —</option>';
+  (USERS[cls] || []).forEach(n => {
+    const opt = document.createElement("option");
+    opt.value = n; opt.textContent = n;
+    expStudentName.appendChild(opt);
+  });
+  checkExportStudentReady();
+}
+function checkExportStudentReady() {
+  exportStudentBtn.disabled = !(expStudentSession.value && expStudentClass.value && expStudentName.value);
+}
+expStudentClass.addEventListener("change", refreshExportStudentList);
+expStudentSession.addEventListener("change", checkExportStudentReady);
+expStudentName.addEventListener("change", checkExportStudentReady);
+
+exportStudentBtn.addEventListener("click", async () => {
+  const session = expStudentSession.value;
+  const cls     = expStudentClass.value;
+  const student = expStudentName.value;
+  const skey    = studentKey(student);
+  const path    = `/reports/${session}/${cls}/${skey}`;
+
+  clearLog("expLog");
+  log("expLog", `⏳ Fetching ${path}`, "info");
+
+  try {
+    const snap = await db.ref(path).once("value");
+    const data = snap.val();
+    if (!data) {
+      setStatus("❌ No record found for that student.", "error");
+      log("expLog", "❌ No record found.", "error");
+      return;
+    }
+
+    const subjDefs = subjectsFor(cls);
+    const rows = [];
+    rows.push(csvRow(["subject_key","subject_label","test1","test2","test3","ass1","ass2","ass3","casum","exam","total","cummBf","cummScore","avg","pos","grade"]));
+    subjDefs.forEach(def => {
+      const s = (data.subjects && data.subjects[def.key]) || {};
+      rows.push(csvRow([
+        def.key, def.label,
+        s.test1 ?? "", s.test2 ?? "", s.test3 ?? "",
+        s.ass1 ?? "", s.ass2 ?? "", s.ass3 ?? "",
+        s.casum ?? "", s.exam ?? "", s.total ?? "",
+        s.cummBf ?? "", s.cummScore ?? "", s.avg ?? "",
+        s.pos ?? "", s.grade ?? ""
+      ]));
+    });
+
+    // Also append header info as comments at bottom
+    rows.push("");
+    rows.push(csvRow(["# student_name", student]));
+    rows.push(csvRow(["# class", cls]));
+    rows.push(csvRow(["# session", session]));
+    rows.push(csvRow(["# house", (data.student && data.student.house) || ""]));
+    rows.push(csvRow(["# attendance", (data.student && data.student.attendance) || ""]));
+    rows.push(csvRow(["# outOf", (data.student && data.student.outOf) || ""]));
+
+    const csv = "\uFEFF" + rows.join("\r\n") + "\r\n";
+    const filename = `student_${session}_${cls}_${skey}.csv`;
+    downloadBlob(filename, csv, "text/csv;charset=utf-8");
+    log("expLog", `✅ Exported: ${filename}`, "success");
+    setStatus("✅ Student CSV exported.", "success");
+  } catch (err) {
+    setStatus("❌ Export failed: " + err.message, "error");
+    log("expLog", "❌ " + err.message, "error");
+  }
+});
+
+/* ============================================================
+   11. EXPORT — CLASS BROADSHEET
+   ============================================================ */
+const expClassSession = $("expClassSession");
+const expClassClass   = $("expClassClass");
+const expClassMode    = $("expBroadsheetMode");
+const exportClassBtn  = $("exportClassBtn");
+
+function checkExportClassReady() {
+  exportClassBtn.disabled = !(expClassSession.value && expClassClass.value);
+}
+expClassSession.addEventListener("change", checkExportClassReady);
+expClassClass.addEventListener("change", checkExportClassReady);
+
+exportClassBtn.addEventListener("click", async () => {
+  const session = expClassSession.value;
+  const cls     = expClassClass.value;
+  const mode    = expClassMode.value;
+
+  clearLog("expLog");
+  setStatus("⏳ Building broadsheet…", "info");
+  log("expLog", `⏳ Fetching /reports/${session}/${cls}`, "info");
+
+  try {
+    const snap = await db.ref(`/reports/${session}/${cls}`).once("value");
+    const classData = snap.val() || {};
+    const subjDefs  = subjectsFor(cls);
+    const students  = USERS[cls] || [];
+
+    // Header
+    const header = ["student_key","student_name"];
+    if (mode === "totals") {
+      subjDefs.forEach(d => header.push(d.key + "_total"));
+      header.push("grand_total");
+      header.push("average");
+      header.push("position");
+    } else {
+      subjDefs.forEach(d => {
+        ["test1","test2","test3","ass1","ass2","ass3","casum","exam","total","cummBf","cummScore","avg","pos","grade"]
+          .forEach(f => header.push(d.key + "_" + f));
+      });
+    }
+
+    const rowsData = students.map(name => {
+      const skey = studentKey(name);
+      const rec  = classData[skey] || {};
+      const subs = rec.subjects || {};
+      let grandTotal = 0;
+      const perSubjectTotals = {};
+      subjDefs.forEach(d => {
+        const s = subs[d.key] || {};
+        const t = parseFloat(s.total);
+        perSubjectTotals[d.key] = isNaN(t) ? 0 : t;
+        grandTotal += perSubjectTotals[d.key];
+      });
+      const average = subjDefs.length > 0 ? grandTotal / subjDefs.length : 0;
+      return { skey, name, subs, perSubjectTotals, grandTotal, average };
+    });
+
+    // Rank by grandTotal desc
+    const ranked = [...rowsData].sort((a,b) => b.grandTotal - a.grandTotal);
+    const posMap = {};
+    ranked.forEach((r, i) => posMap[r.skey] = i+1);
+
+    const out = [header];
+    rowsData.forEach(r => {
+      const row = [r.skey, r.name];
+      if (mode === "totals") {
+        subjDefs.forEach(d => row.push(r.perSubjectTotals[d.key] || ""));
+        row.push(r.grandTotal.toFixed(2));
+        row.push(r.average.toFixed(2));
+        row.push(posMap[r.skey]);
+      } else {
+        subjDefs.forEach(d => {
+          const s = r.subs[d.key] || {};
+          ["test1","test2","test3","ass1","ass2","ass3","casum","exam","total","cummBf","cummScore","avg","pos","grade"]
+            .forEach(f => row.push(s[f] ?? ""));
+        });
+      }
+      out.push(row);
+    });
+
+    const csv = "\uFEFF" + out.map(csvRow).join("\r\n") + "\r\n";
+    const filename = `broadsheet_${session}_${cls}_${mode}.csv`;
+    downloadBlob(filename, csv, "text/csv;charset=utf-8");
+    log("expLog", `✅ Exported: ${filename}`, "success");
+    setStatus("✅ Broadsheet exported.", "success");
+  } catch (err) {
+    setStatus("❌ Export failed: " + err.message, "error");
+    log("expLog", "❌ " + err.message, "error");
+  }
+});
+
+/* ============================================================
+   12. BACKUP / RESTORE
+   ============================================================ */
+$("backupBtn").addEventListener("click", async () => {
+  clearLog("backupLog");
+  setStatus("⏳ Downloading full backup…", "info");
+  log("backupLog", "⏳ Fetching /reports …", "info");
+  try {
+    const snap = await db.ref("/reports").once("value");
+    const data = snap.val() || {};
+    const payload = {
+      _meta: {
+        exportedAt: new Date().toISOString(),
+        exportedBy: (auth.currentUser && auth.currentUser.email) || "unknown",
+        project: firebaseConfig.projectId
+      },
+      reports: data
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const filename = `wfs_backup_${new Date().toISOString().slice(0,19).replace(/[:T]/g,"-")}.json`;
+    downloadBlob(filename, json, "application/json");
+    log("backupLog", `✅ Backup downloaded: ${filename}`, "success");
+    setStatus("✅ Backup downloaded.", "success");
+  } catch (err) {
+    setStatus("❌ Backup failed: " + err.message, "error");
+    log("backupLog", "❌ " + err.message, "error");
+  }
+});
+
+$("restoreFile").addEventListener("change", () => {
+  $("restoreBtn").disabled = !$("restoreFile").files[0];
+});
+
+$("restoreBtn").addEventListener("click", async () => {
+  const f = $("restoreFile").files[0];
+  if (!f) return;
+  if (!confirm("⚠️ This will OVERWRITE the entire /reports node with the backup contents.\n\nAll current report data will be lost.\n\nProceed?")) return;
+  if (!confirm("🔴 FINAL WARNING — click OK to confirm restore.")) return;
+
+  clearLog("backupLog");
+  setStatus("⏳ Restoring…", "info");
+  log("backupLog", `⏳ Reading ${f.name} …`, "info");
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    try {
+      const obj = JSON.parse(e.target.result);
+      const reports = obj.reports || obj; // support both wrapped and raw
+      if (!reports || typeof reports !== "object") throw new Error("No reports node found in file.");
+      await db.ref("/reports").set(reports);
+      log("backupLog", "✅ Restore complete.", "success");
+      setStatus("✅ Restore complete.", "success");
+    } catch (err) {
+      log("backupLog", "❌ Restore failed: " + err.message, "error");
+      setStatus("❌ Restore failed: " + err.message, "error");
+    }
+  };
+  reader.readAsText(f);
+});
+
+/* ============================================================
+   13. HEADER BUTTONS
+   ============================================================ */
+$("backBtn").addEventListener("click", () => window.location.href = "dashboard.html");
+$("logoutBtn").addEventListener("click", async () => {
+  if (!confirm("Log out?")) return;
+  await auth.signOut();
+  sessionStorage.clear();
+  window.location.replace("login.html");
+});
+
+/* ============================================================
+   14. INIT
+   ============================================================ */
+log("impLog", "📥📤 Import / Export page loaded.", "success");
+log("expLog", "⏳ Waiting for export request.", "info");
+log("backupLog", "⏳ Waiting for backup/restore request.", "info");
+</script>
+</body>
+</html>
