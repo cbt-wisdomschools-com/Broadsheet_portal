@@ -39,6 +39,27 @@
     font-size: 0.8rem;
     color: #6f6456;
   }
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .seed-btn {
+    padding: 8px 18px;
+    background: #2b6e4e;
+    color: white;
+    border: 2px solid #1f5a3e;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #1a452f;
+    transition: 0.1s;
+  }
+  .seed-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #1a452f;
+  }
   .logout-btn {
     padding: 8px 18px;
     background: #8b1a1a;
@@ -188,7 +209,10 @@
       <h1>🏫 Wisdom Foundation Dashboard</h1>
       <div class="user" id="userInfo">—</div>
     </div>
-    <button class="logout-btn" id="logoutBtn">Logout</button>
+    <div class="header-actions">
+      <button class="seed-btn" id="seedBtn">🌱 Seed</button>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
   </header>
 
   <div class="card">
@@ -354,6 +378,7 @@ const studentSelect = document.getElementById("studentSelect");
 const nextBtn       = document.getElementById("nextBtn");
 const resetBtn      = document.getElementById("resetBtn");
 const logoutBtn     = document.getElementById("logoutBtn");
+const seedBtn       = document.getElementById("seedBtn");
 const statusEl      = document.getElementById("status");
 const previewEl     = document.getElementById("preview");
 
@@ -461,7 +486,14 @@ nextBtn.addEventListener("click", () => {
 });
 
 /* ============================================================
-   7. RESET
+   7. SEED BUTTON → redirect to seed.html
+   ============================================================ */
+seedBtn.addEventListener("click", () => {
+  window.location.href = "seed.html";
+});
+
+/* ============================================================
+   8. RESET
    ============================================================ */
 resetBtn.addEventListener("click", () => {
   sessionSelect.value = "";
@@ -474,7 +506,7 @@ resetBtn.addEventListener("click", () => {
 });
 
 /* ============================================================
-   8. LOGOUT
+   9. LOGOUT
    ============================================================ */
 logoutBtn.addEventListener("click", async () => {
   if (!confirm("Log out of the portal?")) return;
@@ -490,7 +522,7 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 /* ============================================================
-   9. INIT
+   10. INIT
    ============================================================ */
 checkReady();
 </script>
