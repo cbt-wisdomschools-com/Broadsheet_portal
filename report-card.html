@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report Card · Wisdom Foundation</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: #d9cdb8;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1f1c18;
+    padding: 20px 12px 60px;
+  }
+
+  /* ================= TOP TOOLBAR ================= */
+  .toolbar {
+    max-width: 900px;
+    margin: 0 auto 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    background: rgba(255,255,255,0.85);
+    border: 2px solid #b87c44;
+    border-radius: 12px;
+    padding: 10px 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  }
+  .toolbar .left, .toolbar .right {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .btn {
+    padding: 9px 20px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    border: 2px solid;
+    transition: 0.1s;
+    font-family: inherit;
+  }
+  .btn-primary   { background:#b55a1a; color:#fff; border-color:#7d3c0c; box-shadow:3px 3px 0 #5f2e0a; }
+  .btn-primary:hover { transform:translate(2px,2px); box-shadow:1px 1px 0 #5f2e0a; }
+  .btn-success   { background:#2b6e4e; color:#fff; border-color:#1f5a3e; box-shadow:3px 3px 0 #1a452f; }
+  .btn-success:hover { transform:translate(2px,2px); box-shadow:1px 1px 0 #1a452f; }
+  .btn-danger    { background:#8b1a1a; color:#fff; border-color:#5f0f0f; box-shadow:3px 3px 0 #3d0a0a; }
+  .btn-danger:hover { transform:translate(2px,2px); box-shadow:1px 1px 0 #3d0a0a; }
+  .btn-secondary { background:#1e2f3f; color:#fff; border-color:#1a2937; box-shadow:3px 3px 0 #0f1a24; }
+  .btn-secondary:hover { transform:translate(2px,2px); box-shadow:1px 1px 0 #0f1a24; }
+
+  .status {
+    max-width: 900px;
+    margin: 0 auto 16px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
+    text-align: center;
+  }
+  .status.info    { display:block; background:#bbdefb; color:#0d3b66; }
+  .status.error   { display:block; background:#ffcdd2; color:#8b1a1a; }
+  .status.success { display:block; background:#c8e6c9; color:#1e4a2a; }
+
+  /* ================= REPORT CARD ================= */
+  .card {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    background: #ffffff;
+    background-image: url('img/background-logo.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 55%;
+    background-blend-mode: multiply;
+    border: 3px double #7a3f0e;
+    padding: 10mm 8mm;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    position: relative;
+  }
+
+  /* Watermark wrapper for subtlety */
+  .card::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: url('img/background-logo.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 60%;
+    opacity: 0.06;
+    pointer-events: none;
+  }
+
+  /* ================= HEADER ================= */
+  .rc-header {
+    display: grid;
+    grid-template-columns: 90px 1fr 90px;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 3px double #7a3f0e;
+    padding-bottom: 8px;
+    position: relative;
+    z-index: 2;
+  }
+  .rc-header .student-photo,
+  .rc-header .school-logo {
+    width: 90px; height: 90px;
+    border: 2px solid #7a3f0e;
+    border-radius: 6px;
+    background: #fdfaf5;
+    object-fit: cover;
+    display: block;
+  }
+  .rc-header .school-title {
+    text-align: center;
+    line-height: 1.15;
+  }
+  .rc-header .school-title h1 {
+    margin: 0;
+    font-family: 'Georgia', serif;
+    font-size: 1.55rem;
+    font-weight: 900;
+    color: #7a3f0e;
+    letter-spacing: 1px;
+  }
+  .rc-header .school-title .tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #5f3d1a;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .rc-header .school-title .addr {
+    font-size: 0.7rem;
+    color: #6f6456;
+    margin-top: 2px;
+  }
+  .rc-header .school-title .report-label {
+    margin-top: 6px;
+    display: inline-block;
+    padding: 2px 14px;
+    background: #7a3f0e;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+  }
+
+  /* ================= STUDENT INFO ================= */
+  .student-info {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 20px;
+    font-size: 0.78rem;
+    border: 1.5px solid #b87c44;
+    border-radius: 6px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.85);
+    position: relative;
+    z-index: 2;
+  }
+  .student-info .row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted #c8b79a;
+    padding: 3px 0;
+  }
+  .student-info .row .lbl {
+    font-weight: 700;
+    color: #5f3d1a;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.3px;
+  }
+  .student-info .row .val {
+    font-weight: 600;
+    color: #1f1c18;
+    text-align: right;
+  }
+
+  /* ================= TABLE ================= */
+  .subject-section {
+    margin-top: 12px;
+    position: relative;
+    z-index: 2;
+  }
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #7a3f0e;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 4px 0;
+    border-left: 4px solid #b87c44;
+    padding-left: 6px;
+  }
+
+  table.rc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.68rem;
+  }
+  table.rc-table th,
+  table.rc-table td {
+    border: 1px solid #b87c44;
+    padding: 3px 3px;
+    text-align: center;
+    line-height: 1.2;
+  }
+  table.rc-table thead th {
+    background: #7a3f0e;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+  }
+  table.rc-table td.subj {
+    text-align: left;
+    font-weight: 600;
+    padding-left: 6px;
+    color: #5f3d1a;
+    background: rgba(245,237,224,0.55);
+  }
+  table.rc-table td.calc {
+    background: rgba(245,237,224,0.85);
+    font-weight: 700;
+    color: #7a3f0e;
+  }
+  table.rc-table td.grade {
+    font-weight: 800;
+    color: #7a3f0e;
+  }
+  table.rc-table tbody tr:nth-child(even) td:not(.subj):not(.calc) {
+    background: rgba(255,255,255,0.6);
+  }
+
+  /* ================= BOTTOM GRID ================= */
+  .bottom-grid {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+  }
+  .panel {
+    border: 1.5px solid #b87c44;
+    border-radius: 6px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.85);
+  }
+  .panel .panel-title {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #7a3f0e;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 6px 0;
+    border-bottom: 1px dashed #b87c44;
+    padding-bottom: 3px;
+  }
+  .panel table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+  }
+  .panel table td {
+    padding: 3px 4px;
+    border-bottom: 1px dotted #d7b893;
+  }
+  .panel table td:last-child {
+    text-align: right;
+    font-weight: 700;
+    color: #5f3d1a;
+    width: 90px;
+  }
+
+  /* ================= REMARKS ================= */
+  .remarks {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    position: relative;
+    z-index: 2;
+  }
+  .remark-box {
+    border: 1.5px solid #b87c44;
+    border-radius: 6px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,0.85);
+    min-height: 44px;
+  }
+  .remark-box .lbl {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7a3f0e;
+    margin-bottom: 4px;
+  }
+  .remark-box .txt {
+    font-size: 0.78rem;
+    color: #1f1c18;
+    font-style: italic;
+    line-height: 1.35;
+  }
+
+  .promotion-row {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+  }
+  .promotion-row .box {
+    border: 1.5px solid #b87c44;
+    border-radius: 6px;
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.85);
+    font-size: 0.78rem;
+  }
+  .promotion-row .box .lbl {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #7a3f0e;
+    letter-spacing: 1px;
+  }
+  .promotion-row .box .val {
+    font-weight: 700;
+    color: #1f1c18;
+  }
+
+  /* ================= SIGNATURES ================= */
+  .signatures {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+  }
+  .signatures .sig {
+    text-align: center;
+    font-size: 0.7rem;
+    color: #5f3d1a;
+  }
+  .signatures .sig .line {
+    border-top: 1.5px solid #7a3f0e;
+    margin-bottom: 3px;
+    padding-top: 22px;
+  }
+  .signatures .sig .role {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.62rem;
+  }
+
+  .footer-note {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 0.6rem;
+    color: #8b7d68;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 2;
+    border-top: 1px dashed #b87c44;
+    padding-top: 6px;
+  }
+
+  /* ================= LOADING ================= */
+  .loading {
+    max-width: 900px;
+    margin: 40px auto;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #5f3d1a;
+    font-weight: 600;
+  }
+
+  /* ================= PRINT ================= */
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 6mm;
+    }
+    body {
+      background: #fff !important;
+      padding: 0 !important;
+    }
+    .toolbar, .status, .footer-note.no-print { display: none !important; }
+    .card {
+      width: auto !important;
+      min-height: auto !important;
+      margin: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 4mm !important;
+      background-image: url('img/background-logo.png') !important;
+      background-size: 55% !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .card::before { display: none; }
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= TOOLBAR ================= -->
+<div class="toolbar no-print">
+  <div class="left">
+    <button class="btn btn-danger" id="logoutBtn">← Logout</button>
+    <button class="btn btn-secondary" id="backBtn">Dashboard</button>
+  </div>
+  <div class="right">
+    <button class="btn btn-success" id="printBtn">🖨️ Print</button>
+    <button class="btn btn-primary" id="pdfBtn">💾 Save as PDF</button>
+    <button class="btn btn-secondary" id="reloadBtn">🔄 Reload</button>
+  </div>
+</div>
+
+<div class="status no-print" id="status"></div>
+
+<!-- ================= REPORT CARD ================= -->
+<div id="cardContainer">
+  <div class="loading">⏳ Loading report card…</div>
+</div>
+
+<script>
+/* ============================================================
+   1. FIREBASE CONFIG
+   ============================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBcbySKjFMndLDDYr6XOKPoX0rcUqY5dp4",
+  authDomain:        "wisdom-firsterm-records26-27.firebaseapp.com",
+  databaseURL:       "https://wisdom-firsterm-records26-27-default-rtdb.firebaseio.com",
+  projectId:         "wisdom-firsterm-records26-27",
+  storageBucket:     "wisdom-firsterm-records26-27.firebasestorage.app",
+  messagingSenderId: "476083129496",
+  appId:             "1:476083129496:web:25fcd0a42a1c10bfa7d4ed",
+  measurementId:     "G-0PJ3GJYY80"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.database();
+
+/* ============================================================
+   2. SESSION GUARD
+   ============================================================ */
+if (sessionStorage.getItem("wfs_logged_in") !== "true") {
+  window.location.replace("login.html");
+}
+auth.onAuthStateChanged((user) => {
+  if (!user) {
+    sessionStorage.removeItem("wfs_logged_in");
+    window.location.replace("login.html");
+  }
+});
+
+/* ============================================================
+   3. SUBJECT LABELS (key → pretty name)
+   ============================================================ */
+const SUBJECT_LABELS = {
+  // Junior
+  mathematics: "Mathematics",
+  english_language: "English Language",
+  english_literature: "Literature in English",
+  intermediate_science: "Intermediate Science",
+  digital_technology: "Computer Studies",
+  food_and_nutrition: "Food And Nutrition",
+  livestock_farming: "Livestock Farming",
+  social_Studies: "Social / Citizenship Studies",
+  business_studies: "Business Studies",
+  cultural_and_creative_art: "Cultural & Creative Art",
+  yoruba: "Yoruba",
+  phe: "Physical Health Education",
+  crs: "Christian Religious Studies",
+  french: "French",
+  music: "Music",
+  phonetics: "Phonetics / Diction",
+  nigerian_history: "History",
+  agricultural_science: "Agricultural Science",
+  fine_art: "Fine Art",
+  ekiti_values: "Ekiti Values",
+  // Senior-only
+  chemistry: "Chemistry",
+  biology: "Biology",
+  citizenship_education: "Citizenship / Heritage Studies",
+  literature_in_english: "Literature in English",
+  physics: "Physics",
+  economics: "Economics",
+  geography: "Geography",
+  account: "Financial Accounting",
+  government: "Government",
+  commerce: "Commerce",
+  marketing: "Marketing",
+  further_mathematics: "Further Mathematics",
+  history: "Nigerian History"
+};
+
+/* Order for display (junior + senior combined, we filter by what's present) */
+const SUBJECT_ORDER = [
+  "mathematics","english_language","english_literature","literature_in_english",
+  "intermediate_science","digital_technology","chemistry","biology","physics",
+  "agricultural_science","livestock_farming","food_and_nutrition","further_mathematics",
+  "social_Studies","citizenship_education","nigerian_history","history",
+  "business_studies","account","commerce","marketing","economics","government",
+  "cultural_and_creative_art","fine_art","yoruba","phe","crs","french",
+  "music","phonetics","ekiti_values"
+];
+
+/* ============================================================
+   4. URL PARAMS
+   ============================================================ */
+const params  = new URLSearchParams(window.location.search);
+const session = params.get("session");
+const cls     = params.get("class");
+const student = params.get("student");
+
+if (!session || !cls || !student) {
+  document.getElementById("cardContainer").innerHTML =
+    "<div class='loading'>⚠️ Missing parameters. <a href='dashboard.html'>Back to dashboard</a></div>";
+  throw new Error("Missing URL params");
+}
+
+const studentKey = student.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^\w_]/g, "");
+const dataPath   = `/reports/${session}/${cls}/${studentKey}`;
+
+/* ============================================================
+   5. HELPERS
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+const statusEl = $("status");
+
+function setStatus(msg, type = "info") {
+  statusEl.className = "status " + type;
+  statusEl.textContent = msg;
+}
+function esc(v) {
+  if (v === null || v === undefined) return "";
+  return String(v)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function fmt(v) {
+  if (v === null || v === undefined || v === "") return "—";
+  return String(v);
+}
+
+/* ============================================================
+   6. LOAD + RENDER
+   ============================================================ */
+async function loadAndRender() {
+  setStatus("⏳ Loading report card…", "info");
+  try {
+    const snap = await db.ref(dataPath).once("value");
+    const data = snap.val();
+    if (!data) {
+      document.getElementById("cardContainer").innerHTML =
+        `<div class='loading'>⚠️ No record found for ${esc(student)} in ${esc(cls)} · ${esc(session)}.<br><br>
+         <a href="dashboard.html">← Back to dashboard</a></div>`;
+      setStatus("❌ No record found.", "error");
+      return;
+    }
+    renderReport(data);
+    setStatus("✅ Report card loaded.", "success");
+    setTimeout(() => statusEl.className = "status", 2000);
+  } catch (err) {
+    console.error(err);
+    setStatus("❌ Load failed: " + err.message, "error");
+    document.getElementById("cardContainer").innerHTML =
+      `<div class='loading'>❌ ${esc(err.message)}</div>`;
+  }
+}
+
+function renderReport(data) {
+  const s = data.student || {};
+  const subjects = data.subjects || {};
+  const char = data.characterDevelopment || {};
+  const prac = data.practicalSkills || {};
+  const remarks = data.remarks || {};
+
+  // Student photo path
+  const photo = s.image || `img/${studentKey}.png`;
+
+  // Session display
+  const sessionDisplay = session.replace("-", " / ");
+
+  // Build subject rows in preferred order, only including subjects that exist
+  const presentKeys = SUBJECT_ORDER.filter(k => subjects[k]);
+  // Append any subjects we didn't know about
+  Object.keys(subjects).forEach(k => {
+    if (!presentKeys.includes(k)) presentKeys.push(k);
+  });
+
+  let subjectRowsHtml = "";
+  presentKeys.forEach((key, i) => {
+    const sub = subjects[key] || {};
+    const label = SUBJECT_LABELS[key] || key;
+    subjectRowsHtml += `
+      <tr>
+        <td style="width:24px;">${i + 1}</td>
+        <td class="subj">${esc(label)}</td>
+        <td>${fmt(sub.test1)}</td>
+        <td>${fmt(sub.test2)}</td>
+        <td>${fmt(sub.test3)}</td>
+        <td>${fmt(sub.ass1)}</td>
+        <td>${fmt(sub.ass2)}</td>
+        <td>${fmt(sub.ass3)}</td>
+        <td class="calc">${fmt(sub.casum)}</td>
+        <td>${fmt(sub.exam)}</td>
+        <td class="calc">${fmt(sub.total)}</td>
+        <td>${fmt(sub.cummBf)}</td>
+        <td class="calc">${fmt(sub.cummScore)}</td>
+        <td class="calc">${fmt(sub.avg)}</td>
+        <td>${fmt(sub.pos)}</td>
+        <td class="grade">${fmt(sub.grade)}</td>
+      </tr>`;
+  });
+
+  // Character rows
+  const charOrder = ["Punctuality","Attentiveness","Neatness","Honesty","Relationship"];
+  let charRows = "";
+  charOrder.forEach(name => {
+    const item = char[name] || (char[name.toLowerCase && name.toLowerCase()] || {});
+    const rating = item && item.rating !== undefined ? item.rating : "—";
+    charRows += `<tr><td>${esc(name)}</td><td>${fmt(rating)}</td></tr>`;
+  });
+
+  // Practical rows
+  const pracOrder = ["Sport","Club","Fluency","Handwriting"];
+  let pracRows = "";
+  pracOrder.forEach(name => {
+    const item = prac[name] || {};
+    const rating = item && item.rating !== undefined ? item.rating : "—";
+    pracRows += `<tr><td>${esc(name)}</td><td>${fmt(rating)}</td></tr>`;
+  });
+
+  // Attendance
+  const att = (s.attendance !== undefined && s.attendance !== "") ? s.attendance : "—";
+  const outOf = (s.outOf !== undefined && s.outOf !== "") ? s.outOf : "—";
+  const classSize = (s.numberInClass !== undefined && s.numberInClass !== "") ? s.numberInClass : "—";
+
+  // Remarks
+  const teacher = remarks.teacher || remarks["Teacher Remark"] || "—";
+  const houseM  = remarks.house   || remarks["House masters Remark"] || remarks["House Master Remark"] || "—";
+  const principal = remarks.principal || remarks["Principal Remark"] || "—";
+  const nextTerm  = remarks.nextTerm  || remarks["Next Term"] || "—";
+  const promoted  = remarks.promotedTo || remarks["Promoted To"] || "—";
+
+  const html = `
+    <div class="card" id="reportCard">
+      <div class="rc-header">
+        <img class="student-photo" src="${esc(photo)}" alt="Student photo"
+             onerror="this.style.background='#f5ede0'; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f5ede0%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2258%22 font-size=%2214%22 text-anchor=%22middle%22 fill=%22%237a3f0e%22 font-family=%22Arial%22>No Photo</text></svg>';">
+        <div class="school-title">
+          <div class="tag">Wisdom Foundation</div>
+          <h1>WISDOM SCHOOLS</h1>
+          <div class="addr">Excellence · Integrity · Service</div>
+          <div class="report-label">FIRST TERM REPORT SHEET · ${esc(sessionDisplay)}</div>
+        </div>
+        <img class="school-logo" src="img/logo.png" alt="School logo"
+             onerror="this.style.display='none';">
+      </div>
+
+      <div class="student-info">
+        <div class="row"><span class="lbl">Name</span><span class="val">${esc(s.name || student)}</span></div>
+        <div class="row"><span class="lbl">Class</span><span class="val">${esc(s.class || cls)}</span></div>
+        <div class="row"><span class="lbl">Session</span><span class="val">${esc(s.session || sessionDisplay)}</span></div>
+        <div class="row"><span class="lbl">Term</span><span class="val">${esc(s.term || "FIRST")}</span></div>
+        <div class="row"><span class="lbl">House</span><span class="val">${fmt(s.house)}</span></div>
+        <div class="row"><span class="lbl">Attendance</span><span class="val">${esc(att)} / ${esc(outOf)}</span></div>
+        <div class="row"><span class="lbl">Number in Class</span><span class="val">${esc(classSize)}</span></div>
+        <div class="row"><span class="lbl">Report Date</span><span class="val">${new Date().toLocaleDateString()}</span></div>
+      </div>
+
+      <div class="subject-section">
+        <p class="section-title">Academic Performance</p>
+        <table class="rc-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th style="text-align:left; padding-left:6px;">Subject</th>
+              <th>Test 1</th>
+              <th>Test 2</th>
+              <th>Test 3</th>
+              <th>Ass 1</th>
+              <th>Ass 2</th>
+              <th>Ass 3</th>
+              <th>CASUM</th>
+              <th>Exam</th>
+              <th>Total</th>
+              <th>Cumm b/f</th>
+              <th>Cumm Score</th>
+              <th>Avg</th>
+              <th>Pos</th>
+              <th>Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${subjectRowsHtml || '<tr><td colspan="16" style="padding:8px; color:#8b1a1a;">No subjects recorded.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="bottom-grid">
+        <div class="panel">
+          <p class="panel-title">Character Development</p>
+          <table>${charRows}</table>
+        </div>
+        <div class="panel">
+          <p class="panel-title">Practical Skills</p>
+          <table>${pracRows}</table>
+        </div>
+      </div>
+
+      <div class="remarks">
+        <div class="remark-box">
+          <div class="lbl">Class Teacher's Remark</div>
+          <div class="txt">${esc(teacher)}</div>
+        </div>
+        <div class="remark-box">
+          <div class="lbl">House Master's Remark</div>
+          <div class="txt">${esc(houseM)}</div>
+        </div>
+        <div class="remark-box">
+          <div class="lbl">Principal's Remark</div>
+          <div class="txt">${esc(principal)}</div>
+        </div>
+      </div>
+
+      <div class="promotion-row">
+        <div class="box">
+          <div class="lbl">Next Term Begins</div>
+          <div class="val">${esc(nextTerm)}</div>
+        </div>
+        <div class="box">
+          <div class="lbl">Promoted To</div>
+          <div class="val">${esc(promoted)}</div>
+        </div>
+      </div>
+
+      <div class="signatures">
+        <div class="sig">
+          <div class="line"></div>
+          <div class="role">Class Teacher</div>
+        </div>
+        <div class="sig">
+          <div class="line"></div>
+          <div class="role">House Master</div>
+        </div>
+        <div class="sig">
+          <div class="line"></div>
+          <div class="role">Principal</div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        This report is computer-generated by Wisdom Foundation Portal · ${esc(new Date().toLocaleString())}
+      </div>
+    </div>
+  `;
+
+  document.getElementById("cardContainer").innerHTML = html;
+}
+
+/* ============================================================
+   7. BUTTONS
+   ============================================================ */
+$("printBtn").addEventListener("click", () => window.print());
+
+$("pdfBtn").addEventListener("click", () => {
+  // Browsers use the same print dialog for "Save as PDF"
+  setStatus("💾 In the print dialog, choose 'Save as PDF' as the destination.", "info");
+  setTimeout(() => window.print(), 400);
+});
+
+$("reloadBtn").addEventListener("click", loadAndRender);
+
+$("backBtn").addEventListener("click", () => window.location.href = "dashboard.html");
+
+$("logoutBtn").addEventListener("click", async () => {
+  if (!confirm("Log out?")) return;
+  try { await auth.signOut(); } catch (e) {}
+  sessionStorage.clear();
+  window.location.replace("login.html");
+});
+
+/* ============================================================
+   8. INIT
+   ============================================================ */
+loadAndRender();
+</script>
+</body>
+</html>
