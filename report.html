@@ -17,180 +17,115 @@
     background: #f7efe0;
     font-family: 'Segoe UI', Arial, sans-serif;
     color: #1f1c18;
-    padding: 24px 16px 80px;
+    padding: 24px 16px 90px;
   }
-  .wrap { max-width: 1100px; margin: 0 auto; }
+  .wrap { max-width: 1400px; margin: 0 auto; }
 
   header.topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 18px;
   }
-  header.topbar h1 {
-    margin: 0;
-    font-size: 1.35rem;
-    color: #7a3f0e;
-  }
-  header.topbar .meta {
-    font-size: 0.8rem;
-    color: #6f6456;
-  }
+  header.topbar h1 { margin: 0; font-size: 1.35rem; color: #7a3f0e; }
+  header.topbar .meta { font-size: 0.8rem; color: #6f6456; }
 
   .btn {
-    padding: 10px 22px;
-    border-radius: 40px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: 0.1s;
-    border: 2px solid;
-    font-family: inherit;
+    padding: 10px 22px; border-radius: 40px; font-weight: 700;
+    font-size: 0.85rem; cursor: pointer; transition: 0.1s;
+    border: 2px solid; font-family: inherit;
   }
-  .btn-primary  { background: #b55a1a; color: #fff; border-color: #7d3c0c; box-shadow: 3px 3px 0 #5f2e0a; }
-  .btn-primary:hover:not(:disabled)  { transform: translate(2px,2px); box-shadow: 1px 1px 0 #5f2e0a; }
-  .btn-secondary{ background: #1e2f3f; color: #fff; border-color: #1a2937; box-shadow: 3px 3px 0 #0f1a24; }
-  .btn-secondary:hover:not(:disabled){ transform: translate(2px,2px); box-shadow: 1px 1px 0 #0f1a24; }
-  .btn-success  { background: #2b6e4e; color: #fff; border-color: #1f5a3e; box-shadow: 3px 3px 0 #1a452f; }
-  .btn-success:hover:not(:disabled)  { transform: translate(2px,2px); box-shadow: 1px 1px 0 #1a452f; }
-  .btn-danger   { background: #8b1a1a; color: #fff; border-color: #5f0f0f; box-shadow: 3px 3px 0 #3d0a0a; }
-  .btn-danger:hover:not(:disabled)   { transform: translate(2px,2px); box-shadow: 1px 1px 0 #3d0a0a; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
+  .btn-primary  { background:#b55a1a; color:#fff; border-color:#7d3c0c; box-shadow:3px 3px 0 #5f2e0a; }
+  .btn-primary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #5f2e0a; }
+  .btn-secondary{ background:#1e2f3f; color:#fff; border-color:#1a2937; box-shadow:3px 3px 0 #0f1a24; }
+  .btn-secondary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #0f1a24; }
+  .btn-success  { background:#2b6e4e; color:#fff; border-color:#1f5a3e; box-shadow:3px 3px 0 #1a452f; }
+  .btn-success:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #1a452f; }
+  .btn-danger   { background:#8b1a1a; color:#fff; border-color:#5f0f0f; box-shadow:3px 3px 0 #3d0a0a; }
+  .btn-danger:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #3d0a0a; }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none; }
 
   .card {
-    background: #fff;
-    border: 2px solid #b87c44;
-    border-radius: 12px;
-    padding: 22px 20px;
-    margin-bottom: 18px;
-    box-shadow: 0 6px 16px rgba(122,63,14,0.08);
+    background:#fff; border:2px solid #b87c44; border-radius:12px;
+    padding:22px 20px; margin-bottom:18px;
+    box-shadow:0 6px 16px rgba(122,63,14,0.08);
   }
   .card h2 {
-    margin: 0 0 14px;
-    font-size: 1.05rem;
-    color: #7a3f0e;
-    border-bottom: 2px double #d7b893;
-    padding-bottom: 8px;
+    margin:0 0 14px; font-size:1.05rem; color:#7a3f0e;
+    border-bottom:2px double #d7b893; padding-bottom:8px;
   }
 
   label {
-    display: block;
-    font-weight: 600;
-    font-size: 0.78rem;
-    margin: 10px 0 4px;
-    color: #5f3d1a;
+    display:block; font-weight:600; font-size:0.78rem;
+    margin:10px 0 4px; color:#5f3d1a;
   }
   input, select, textarea {
-    width: 100%;
-    padding: 8px 10px;
-    border: 2px solid #d7b893;
-    border-radius: 6px;
-    font-size: 0.88rem;
-    background: #fdfaf5;
-    font-family: inherit;
-    transition: border-color 0.15s;
+    width:100%; padding:8px 10px; border:2px solid #d7b893;
+    border-radius:6px; font-size:0.88rem; background:#fdfaf5;
+    font-family:inherit; transition:border-color 0.15s;
   }
   input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: #7a3f0e;
-    background: #fff;
+    outline:none; border-color:#7a3f0e; background:#fff;
   }
-  input[readonly] { background: #f0e8dc; color: #6f6456; }
+  input[readonly] { background:#f0e8dc; color:#6f6456; }
 
-  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  @media (max-width: 900px) { .grid-4 { grid-template-columns: repeat(2,1fr); } }
-  @media (max-width: 640px) {
-    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
-  }
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  @media (max-width:900px){ .grid-4 { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:640px){ .grid-4 { grid-template-columns:1fr; } }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-  }
+  .table-scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:0.78rem; }
   table th, table td {
-    border: 1px solid #d7b893;
-    padding: 5px 6px;
-    text-align: center;
+    border:1px solid #d7b893; padding:4px 5px; text-align:center;
   }
   table th {
-    background: #f5ede0;
-    color: #5f3d1a;
-    font-weight: 700;
-    font-size: 0.75rem;
+    background:#f5ede0; color:#5f3d1a; font-weight:700;
+    font-size:0.7rem; white-space:nowrap;
   }
   table td.subj-name {
-    text-align: left;
-    font-weight: 600;
-    color: #5f3d1a;
-    padding-left: 10px;
-    white-space: nowrap;
+    text-align:left; font-weight:600; color:#5f3d1a;
+    padding-left:8px; white-space:nowrap; min-width:150px;
   }
   table td input {
-    padding: 5px 4px;
-    font-size: 0.82rem;
-    text-align: center;
-    border-width: 1px;
-    border-radius: 4px;
-    background: #fff;
+    padding:4px 3px; font-size:0.78rem; text-align:center;
+    border-width:1px; border-radius:4px; background:#fff; min-width:48px;
   }
   table td.calc {
-    background: #f5ede0;
-    font-weight: 700;
-    color: #7a3f0e;
+    background:#f5ede0; font-weight:700; color:#7a3f0e; font-size:0.78rem;
   }
-  .table-scroll { overflow-x: auto; }
+  table td.grade {
+    font-weight:800; color:#7a3f0e; font-size:0.85rem;
+  }
 
-  .skills-table td.subj-name { width: 200px; }
-  .skills-table input { text-align: center; }
-
+  .skills-table td.subj-name { width:200px; }
   .remarks-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    display:grid; grid-template-columns:1fr 1fr; gap:12px;
   }
-  @media (max-width: 700px) {
-    .remarks-grid { grid-template-columns: 1fr; }
-  }
-  textarea { min-height: 70px; resize: vertical; }
+  @media (max-width:700px){ .remarks-grid { grid-template-columns:1fr; } }
+  textarea { min-height:70px; resize:vertical; }
 
   .actions-bar {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: rgba(255,255,255,0.97);
-    border-top: 2px solid #b87c44;
-    padding: 12px 20px;
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-    box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
-    z-index: 100;
+    position:fixed; bottom:0; left:0; right:0;
+    background:rgba(255,255,255,0.97);
+    border-top:2px solid #b87c44; padding:12px 20px;
+    display:flex; gap:10px; justify-content:center;
+    flex-wrap:wrap; box-shadow:0 -4px 12px rgba(0,0,0,0.08);
+    z-index:100;
   }
 
   .status {
-    margin-top: 14px;
-    padding: 11px 16px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    display: none;
-    text-align: center;
+    margin-top:14px; padding:11px 16px; border-radius:8px;
+    font-size:0.85rem; font-weight:600; display:none; text-align:center;
   }
-  .status.info    { display: block; background: #bbdefb; color: #0d3b66; }
-  .status.error   { display: block; background: #ffcdd2; color: #8b1a1a; }
-  .status.success { display: block; background: #c8e6c9; color: #1e4a2a; }
-  .status.warning { display: block; background: #fff3cd; color: #7a5a0a; }
+  .status.info    { display:block; background:#bbdefb; color:#0d3b66; }
+  .status.error   { display:block; background:#ffcdd2; color:#8b1a1a; }
+  .status.success { display:block; background:#c8e6c9; color:#1e4a2a; }
+  .status.warning { display:block; background:#fff3cd; color:#7a5a0a; }
 
   @media print {
-    body { background: #fff; padding: 0; }
-    header.topbar, .actions-bar, .status { display: none !important; }
-    .card { border: 1px solid #999; box-shadow: none; page-break-inside: avoid; }
-    input, select, textarea { border: none; background: transparent; }
+    body { background:#fff; padding:0; }
+    header.topbar, .actions-bar, .status { display:none !important; }
+    .card { border:1px solid #999; box-shadow:none; page-break-inside:avoid; }
+    input, select, textarea { border:none; background:transparent; }
+    .table-scroll { overflow:visible; }
   }
 </style>
 </head>
@@ -239,17 +174,24 @@
       <table>
         <thead>
           <tr>
-            <th style="text-align:left; padding-left:10px;">Subject</th>
-            <th>Test 1</th><th>Test 2</th><th>Test 3</th>
-            <th>Ass 1</th><th>Ass 2</th><th>Ass 3</th>
-            <th>Exam</th>
-            <th>Total</th>
-            <th>Position</th>
+            <th style="text-align:left; padding-left:8px;">Subject</th>
+            <th>TEST1</th>
+            <th>TEST2</th>
+            <th>TEST3</th>
+            <th>ASS1</th>
+            <th>ASS2</th>
+            <th>ASS3</th>
+            <th>CASUM</th>
+            <th>EXAM</th>
+            <th>TOTAL</th>
+            <th>CUMM b/f</th>
+            <th>CUMM SCORE</th>
+            <th>AVG</th>
+            <th>POS</th>
+            <th>GRADE</th>
           </tr>
         </thead>
-        <tbody id="subjectsBody">
-          <!-- filled by JS -->
-        </tbody>
+        <tbody id="subjectsBody"></tbody>
       </table>
     </div>
   </div>
@@ -260,7 +202,7 @@
     <div class="table-scroll">
       <table class="skills-table">
         <thead>
-          <tr><th style="text-align:left; padding-left:10px;">Trait</th><th>Rating (1–5)</th></tr>
+          <tr><th style="text-align:left; padding-left:8px;">Trait</th><th>Rating (1–5)</th></tr>
         </thead>
         <tbody id="characterBody"></tbody>
       </table>
@@ -273,7 +215,7 @@
     <div class="table-scroll">
       <table class="skills-table">
         <thead>
-          <tr><th style="text-align:left; padding-left:10px;">Skill</th><th>Rating (1–5)</th></tr>
+          <tr><th style="text-align:left; padding-left:8px;">Skill</th><th>Rating (1–5)</th></tr>
         </thead>
         <tbody id="practicalBody"></tbody>
       </table>
@@ -382,10 +324,8 @@ const SENIOR_SUBJECTS = [
   { key: "phonetics",              label: "Phonetics" }
 ];
 
-const CHARACTER_TRAITS = [
-  "Punctuality", "Attentiveness", "Neatness", "Honesty", "Relationship"
-];
-const PRACTICAL_SKILLS = ["Sport", "Club", "Fluency", "Handwriting"];
+const CHARACTER_TRAITS = ["Punctuality","Attentiveness","Neatness","Honesty","Relationship"];
+const PRACTICAL_SKILLS = ["Sport","Club","Fluency","Handwriting"];
 
 /* ============================================================
    4. URL PARAMS
@@ -412,7 +352,7 @@ document.getElementById("headerMeta").textContent =
   `${cls} · ${session} · ${student}`;
 
 /* ============================================================
-   5. DOM REFS
+   5. DOM REFS + STATUS
    ============================================================ */
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
@@ -428,6 +368,9 @@ function setStatus(msg, type = "info") {
 /* ============================================================
    6. BUILD SUBJECT ROWS
    ============================================================ */
+const INPUT_FIELDS  = ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf","pos"];
+const CALC_FIELDS   = ["casum","total","cummScore","avg","grade"];
+
 function buildSubjectRows() {
   const tbody = $("subjectsBody");
   tbody.innerHTML = "";
@@ -442,37 +385,69 @@ function buildSubjectRows() {
       <td><input type="number" data-field="ass1"  min="0" max="100"></td>
       <td><input type="number" data-field="ass2"  min="0" max="100"></td>
       <td><input type="number" data-field="ass3"  min="0" max="100"></td>
-      <td><input type="number" data-field="exam"  min="0" max="100"></td>
+      <td class="calc" data-calc="casum">–</td>
+      <td><input type="number" data-field="exam"   min="0" max="100"></td>
       <td class="calc" data-calc="total">–</td>
-      <td><input type="text" data-field="pos" placeholder="1st"></td>
+      <td><input type="number" data-field="cummBf" min="0" max="100"></td>
+      <td class="calc" data-calc="cummScore">–</td>
+      <td class="calc" data-calc="avg">–</td>
+      <td><input type="text"   data-field="pos" placeholder="1st"></td>
+      <td class="grade" data-calc="grade">–</td>
     `;
     tbody.appendChild(tr);
   });
 
-  // live-calc listeners
   tbody.querySelectorAll("input").forEach(inp => {
-    inp.addEventListener("input", () => recalcRow(tr));
+    inp.addEventListener("input", () => recalcRow(inp.closest("tr")));
   });
 }
 
+function num(tr, field) {
+  const el = tr.querySelector(`input[data-field="${field}"]`);
+  if (!el) return 0;
+  const v = parseFloat(el.value);
+  return isNaN(v) ? 0 : v;
+}
+function setCalc(tr, key, value) {
+  const cell = tr.querySelector(`[data-calc="${key}"]`);
+  if (cell) cell.textContent = value;
+}
+
 function recalcRow(tr) {
-  const get = (f) => {
-    const el = tr.querySelector(`input[data-field="${f}"]`);
-    const v = parseFloat(el.value);
-    return isNaN(v) ? 0 : v;
-  };
-  const sum = get("test1") + get("test2") + get("test3")
-            + get("ass1")  + get("ass2")  + get("ass3")
-            + get("exam");
-  const calcCell = tr.querySelector('[data-calc="total"]');
-  // compute something meaningful: round the total
-  calcCell.textContent = sum > 0 ? sum : "–";
+  const t1 = num(tr, "test1");
+  const t2 = num(tr, "test2");
+  const t3 = num(tr, "test3");
+  const a1 = num(tr, "ass1");
+  const a2 = num(tr, "ass2");
+  const a3 = num(tr, "ass3");
+  const exam = num(tr, "exam");
+  const cummBf = num(tr, "cummBf");
+
+  const sum6   = t1 + t2 + t3 + a1 + a2 + a3;
+  const casum  = sum6 / 6;
+  const total  = casum + (exam / 2);
+  const cummScore = (cummBf + total) / 2;
+  const avg    = cummScore;
+
+  let grade = "–";
+  if (avg >= 75) grade = "A";
+  else if (avg >= 65) grade = "B";
+  else if (avg >= 50) grade = "C";
+  else if (avg >= 40) grade = "D";
+  else if (avg > 0)   grade = "F";
+
+  const hasAny = sum6 > 0 || exam > 0 || cummBf > 0;
+  setCalc(tr, "casum",     hasAny ? casum.toFixed(2)     : "–");
+  setCalc(tr, "total",     hasAny ? total.toFixed(2)     : "–");
+  setCalc(tr, "cummScore", hasAny ? cummScore.toFixed(2) : "–");
+  setCalc(tr, "avg",       hasAny ? avg.toFixed(2)       : "–");
+  setCalc(tr, "grade",     hasAny ? grade                : "–");
 }
 
 /* ============================================================
-   7. BUILD CHARACTER / PRACTICAL ROWS
+   7. SKILL ROWS
    ============================================================ */
-function buildSkillRows(containerId, items, dataAttr) {
+function buildSkillRows(containerId, items) {
   const tbody = document.getElementById(containerId);
   tbody.innerHTML = "";
   items.forEach(name => {
@@ -487,7 +462,7 @@ function buildSkillRows(containerId, items, dataAttr) {
 }
 
 /* ============================================================
-   8. LOAD EXISTING DATA
+   8. LOAD
    ============================================================ */
 function loadData() {
   setStatus("⏳ Loading record…", "info");
@@ -513,22 +488,13 @@ function loadData() {
 function blankTemplate() {
   return {
     student: {
-      name: student,
-      class: cls,
-      term: "FIRST",
-      session: session,
-      house: "",
-      attendance: 0,
-      outOf: 0,
-      numberInClass: 0
+      name: student, class: cls, term: "FIRST", session: session,
+      house: "", attendance: 0, outOf: 0, numberInClass: 0
     },
     subjects: {},
     characterDevelopment: {},
     practicalSkills: {},
-    remarks: {
-      teacher: "", house: "", principal: "",
-      nextTerm: "", promotedTo: ""
-    }
+    remarks: { teacher:"", house:"", principal:"", nextTerm:"", promotedTo:"" }
   };
 }
 
@@ -543,7 +509,6 @@ function fillForm(data) {
   $("f_outOf").value          = s.outOf ?? "";
   $("f_numberInClass").value  = s.numberInClass ?? "";
 
-  // subjects — support both array (Part 3 style) and object keyed by subject key
   const subjData = data.subjects || {};
   document.querySelectorAll("#subjectsBody tr").forEach(tr => {
     const key = tr.dataset.key;
@@ -554,20 +519,17 @@ function fillForm(data) {
       entry = subjData[key];
     }
     if (entry) {
-      ["test1","test2","test3","ass1","ass2","ass3","exam","pos"].forEach(f => {
+      INPUT_FIELDS.forEach(f => {
         const inp = tr.querySelector(`input[data-field="${f}"]`);
-        if (inp && entry[f] !== undefined) inp.value = entry[f];
+        if (inp && entry[f] !== undefined && entry[f] !== "") inp.value = entry[f];
       });
-      recalcRow(tr);
     }
+    recalcRow(tr);
   });
 
-  // character
   fillSkillSection("characterBody", data.characterDevelopment, "trait");
-  // practical
   fillSkillSection("practicalBody", data.practicalSkills, "skill");
 
-  // remarks
   const r = data.remarks || {};
   $("r_teacher").value   = r.teacher   || r["Teacher Remark"]        || "";
   $("r_house").value     = r.house     || r["House masters Remark"]  || r["House Master Remark"] || "";
@@ -576,12 +538,12 @@ function fillForm(data) {
   $("r_promotedTo").value= r.promotedTo|| r["Promoted To"]           || "";
 }
 
-function fillSkillSection(tbodyId, dataObj, nameKey) {
+function fillSkillSection(tbodyId, dataObj) {
   if (!dataObj) return;
   let list = Array.isArray(dataObj) ? dataObj : Object.values(dataObj);
   document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
     const name = tr.dataset.name;
-    const found = list.find(x => (x[nameKey] || x.trait || x.skill) === name);
+    const found = list.find(x => (x.trait || x.skill) === name);
     if (found) {
       const inp = tr.querySelector('input[data-field="rating"]');
       if (inp) inp.value = found.rating ?? "";
@@ -594,17 +556,27 @@ function slug(str) {
 }
 
 /* ============================================================
-   9. COLLECT + SAVE
+   9. SAVE
    ============================================================ */
 function collectData() {
   const subjectsOut = {};
   document.querySelectorAll("#subjectsBody tr").forEach(tr => {
     const key = tr.dataset.key;
     const entry = {};
-    ["test1","test2","test3","ass1","ass2","ass3","exam","pos"].forEach(f => {
+    ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf"].forEach(f => {
       const inp = tr.querySelector(`input[data-field="${f}"]`);
-      if (inp) entry[f] = inp.value === "" ? "" : (f === "pos" ? inp.value : Number(inp.value));
+      entry[f] = (inp && inp.value !== "") ? Number(inp.value) : "";
     });
+    const pos = tr.querySelector('input[data-field="pos"]');
+    entry.pos = pos ? pos.value : "";
+
+    // also snapshot the calculated fields (helpful for the future seed + auditing)
+    entry.casum     = tr.querySelector('[data-calc="casum"]').textContent;
+    entry.total     = tr.querySelector('[data-calc="total"]').textContent;
+    entry.cummScore = tr.querySelector('[data-calc="cummScore"]').textContent;
+    entry.avg       = tr.querySelector('[data-calc="avg"]').textContent;
+    entry.grade     = tr.querySelector('[data-calc="grade"]').textContent;
+
     subjectsOut[key] = entry;
   });
 
@@ -628,10 +600,8 @@ function collectData() {
 
   return {
     student: {
-      name: $("f_name").value,
-      class: $("f_class").value,
-      term: $("f_term").value,
-      session: $("f_session").value,
+      name: $("f_name").value, class: $("f_class").value,
+      term: $("f_term").value, session: $("f_session").value,
       house: $("f_house").value,
       attendance: $("f_attendance").value === "" ? "" : Number($("f_attendance").value),
       outOf: $("f_outOf").value === "" ? "" : Number($("f_outOf").value),
@@ -641,11 +611,11 @@ function collectData() {
     characterDevelopment: charOut,
     practicalSkills: pracOut,
     remarks: {
-      teacher:   $("r_teacher").value,
-      house:     $("r_house").value,
+      teacher: $("r_teacher").value,
+      house: $("r_house").value,
       principal: $("r_principal").value,
-      nextTerm:  $("r_nextTerm").value,
-      promotedTo:$("r_promotedTo").value
+      nextTerm: $("r_nextTerm").value,
+      promotedTo: $("r_promotedTo").value
     },
     meta: {
       updatedAt: new Date().toISOString(),
@@ -671,10 +641,7 @@ function save() {
 $("saveBtn").addEventListener("click", save);
 $("printBtn").addEventListener("click", () => window.print());
 $("reloadBtn").addEventListener("click", () => { if (confirm("Reload and discard unsaved changes?")) loadData(); });
-$("backBtn").addEventListener("click", () => {
-  const p = new URLSearchParams({ session, class: cls });
-  window.location.href = "dashboard.html?" + p.toString();
-});
+$("backBtn").addEventListener("click", () => { window.location.href = "dashboard.html"; });
 $("logoutBtn").addEventListener("click", async () => {
   if (!confirm("Log out?")) return;
   await auth.signOut();
@@ -686,8 +653,8 @@ $("logoutBtn").addEventListener("click", async () => {
    11. INIT
    ============================================================ */
 buildSubjectRows();
-buildSkillRows("characterBody", CHARACTER_TRAITS, "trait");
-buildSkillRows("practicalBody", PRACTICAL_SKILLS, "skill");
+buildSkillRows("characterBody", CHARACTER_TRAITS);
+buildSkillRows("practicalBody", PRACTICAL_SKILLS);
 loadData();
 </script>
 </body>
