@@ -217,6 +217,7 @@
   <button class="seed-btn" id="ieBtn" style="background:#0d6b7a; border-color:#0a4f5a; box-shadow:3px 3px 0 #06333a;">📥📤 Import/Export</button>
   <button class="seed-btn" id="seedBtn">🌱 Seed</button>
   <button class="logout-btn" id="logoutBtn">Logout</button>
+  <button class="seed-btn" id="exportJsonBtn" style="background:#6f4f2a; border-color:#5f3d1a; box-shadow:3px 3px 0 #4a3316;">📦 Export JSON</button>
 </div>
   </header>
 
@@ -534,9 +535,17 @@ logoutBtn.addEventListener("click", async () => {
   sessionStorage.removeItem("wfs_login_time");
   window.location.replace("login.html");
 });
+/* ============================================================
+   12. export to json
+   ============================================================ */
+
+  document.getElementById("exportJsonBtn").addEventListener("click", () => {
+  window.location.href = "export-json.html";
+});
+  
 
 /* ============================================================
-   11. INIT
+   13. INIT
    ============================================================ */
 checkReady();
 </script>
