@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Export Student JSON · Wisdom Foundation</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f7efe0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1f1c18;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 1000px; margin: 0 auto; }
+
+  header.topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 18px;
+  }
+  header.topbar h1 { margin: 0; font-size: 1.35rem; color: #7a3f0e; }
+  header.topbar .meta { font-size: 0.8rem; color: #6f6456; }
+
+  .btn {
+    padding: 10px 22px; border-radius: 40px; font-weight: 700;
+    font-size: 0.85rem; cursor: pointer; transition: 0.1s;
+    border: 2px solid; font-family: inherit;
+  }
+  .btn-primary  { background:#b55a1a; color:#fff; border-color:#7d3c0c; box-shadow:3px 3px 0 #5f2e0a; }
+  .btn-primary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #5f2e0a; }
+  .btn-secondary{ background:#1e2f3f; color:#fff; border-color:#1a2937; box-shadow:3px 3px 0 #0f1a24; }
+  .btn-secondary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #0f1a24; }
+  .btn-success  { background:#2b6e4e; color:#fff; border-color:#1f5a3e; box-shadow:3px 3px 0 #1a452f; }
+  .btn-success:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #1a452f; }
+  .btn-danger   { background:#8b1a1a; color:#fff; border-color:#5f0f0f; box-shadow:3px 3px 0 #3d0a0a; }
+  .btn-danger:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #3d0a0a; }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none; }
+
+  .card {
+    background:#fff; border:2px solid #b87c44; border-radius:12px;
+    padding:22px 20px; margin-bottom:18px;
+    box-shadow:0 6px 16px rgba(122,63,14,0.08);
+  }
+  .card h2 {
+    margin:0 0 14px; font-size:1.05rem; color:#7a3f0e;
+    border-bottom:2px double #d7b893; padding-bottom:8px;
+  }
+
+  label {
+    display:block; font-weight:600; font-size:0.78rem;
+    margin:10px 0 4px; color:#5f3d1a;
+  }
+  select {
+    width:100%; padding:10px 12px; border:2px solid #d7b893;
+    border-radius:6px; font-size:0.9rem; background:#fdfaf5;
+    font-family:inherit; transition:border-color 0.15s;
+  }
+  select:focus { outline:none; border-color:#7a3f0e; background:#fff; }
+  select:disabled { opacity:0.55; background:#f0e8dc; cursor:not-allowed; }
+
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  @media (max-width:760px){ .grid-2, .grid-3 { grid-template-columns:1fr; } }
+
+  .actions {
+    margin-top: 22px; display:flex; gap:10px; flex-wrap:wrap;
+  }
+
+  .status {
+    margin-top:14px; padding:11px 16px; border-radius:8px;
+    font-size:0.85rem; font-weight:600; display:none; text-align:center;
+  }
+  .status.info    { display:block; background:#bbdefb; color:#0d3b66; }
+  .status.error   { display:block; background:#ffcdd2; color:#8b1a1a; }
+  .status.success { display:block; background:#c8e6c9; color:#1e4a2a; }
+  .status.warning { display:block; background:#fff3cd; color:#7a5a0a; }
+
+  .log-area {
+    background:#1e1a16; color:#e8e0d6;
+    padding:14px; border-radius:8px; max-height:400px;
+    overflow-y:auto; font-family:'Courier New', monospace;
+    font-size:0.75rem; line-height:1.55;
+    white-space:pre-wrap; margin-top:10px;
+  }
+  .log-area .success { color:#81c784; }
+  .log-area .error   { color:#ef9a9a; }
+  .log-area .info    { color:#90caf9; }
+  .log-area .warn    { color:#ffd54f; }
+
+  .preview {
+    background:#1e1a16; color:#e8e0d6;
+    padding:14px; border-radius:8px; max-height:420px;
+    overflow:auto; font-family:'Courier New', monospace;
+    font-size:0.72rem; line-height:1.5;
+    white-space:pre; margin-top:10px; display:none;
+  }
+  .preview.show { display:block; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="topbar">
+    <div>
+      <h1>📦 Export Student JSON</h1>
+      <div class="meta" id="meta">Initializing…</div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-secondary" id="backBtn">← Dashboard</button>
+      <button class="btn btn-danger" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div id="status" class="status"></div>
+
+  <div class="card">
+    <h2>1 · Choose the report to export</h2>
+
+    <div class="grid-3">
+      <div>
+        <label>Session</label>
+        <select id="sessionSel">
+          <option value="">— select —</option>
+          <option value="2026-2027">2026 – 2027</option>
+          <option value="2027-2028">2027 – 2028</option>
+          <option value="2028-2029">2028 – 2029</option>
+        </select>
+      </div>
+      <div>
+        <label>Class</label>
+        <select id="classSel" disabled>
+          <option value="">— select session first —</option>
+        </select>
+      </div>
+      <div>
+        <label>Student</label>
+        <select id="studentSel" disabled>
+          <option value="">— select class first —</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="previewBtn" disabled>👁️ Preview JSON</button>
+      <button class="btn btn-success" id="downloadBtn" disabled>📥 Download JSON</button>
+      <button class="btn btn-secondary" id="resetBtn">🔄 Reset</button>
+    </div>
+
+    <div class="preview" id="previewBox"></div>
+  </div>
+
+  <div class="card">
+    <h2>Log</h2>
+    <div class="log-area" id="log">⏳ Ready.</div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   1. FIREBASE CONFIG
+   ============================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBcbySKjFMndLDDYr6XOKPoX0rcUqY5dp4",
+  authDomain:        "wisdom-firsterm-records26-27.firebaseapp.com",
+  databaseURL:       "https://wisdom-firsterm-records26-27-default-rtdb.firebaseio.com",
+  projectId:         "wisdom-firsterm-records26-27",
+  storageBucket:     "wisdom-firsterm-records26-27.firebasestorage.app",
+  messagingSenderId: "476083129496",
+  appId:             "1:476083129496:web:25fcd0a42a1c10bfa7d4ed",
+  measurementId:     "G-0PJ3GJYY80"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.database();
+
+/* ============================================================
+   2. SESSION GUARD
+   ============================================================ */
+if (sessionStorage.getItem("wfs_logged_in") !== "true") {
+  window.location.replace("login.html");
+}
+auth.onAuthStateChanged((user) => {
+  if (!user) {
+    sessionStorage.removeItem("wfs_logged_in");
+    window.location.replace("login.html");
+  } else {
+    document.getElementById("meta").textContent = "Signed in as " + user.email;
+  }
+});
+
+/* ============================================================
+   3. USERS + SUBJECT ORDER (must match report / dashboard)
+   ============================================================ */
+const USERS = {
+  "JSS1": [
+    "Ademola Olamide K","Ige Promise J","Ojuoluwa David A","Tayo-Amos Samuel I",
+    "Adebayo Aishat S","Ajibade Fadesola Ike","Ayoola Veronica Inis",
+    "Chukwuemeka Tifeany S.","Ifeanyi Peace C","Ogunmiloyo Anjola J"
+  ],
+  "JSS2": [
+    "Shehu Ahmeed Marvelous","Fasuan Obaloluwa Adebowale","ojo pemisire adesewa"
+  ],
+  "JSS3": [
+    "George Emmanuel","Adejemilua Peter","Oke Ayobami","Chukwuemeka Emmanuel",
+    "Olorungbohunmi Ayo","Dada Tiwalade","Nafiu Habibat","Fasuan Adetutu",
+    "Salami Semilore","Shinaola Treasure","Adebisi Azeem S","Ajibade Adeola"
+  ],
+  "SS1": [
+    "Abdulateef Qudus Ademola","Isaac Richard Feranmi","Ogunmiloyo Inioluwa David",
+    "Oladiti David Henry","Adebayo Khadijat Iyanu","Akindele Dunsi Faith",
+    "Olusola Divine Oluwaseun","Umar Fatima Lamine","Ajisola Destiny K",
+    "Oladapo Fiyinfoluwa B","Salawudeen Abdulquadri B"
+  ],
+  "SS2": [
+    "Ajisafe Ezekeil","Omolade Darasimi","Owolabi Timilehin Testimony",
+    "Umar Aliyu","Oke Inumidun","Lawal Desmond","Adefisayo Abdul Akorede"
+  ],
+  "SS3": [
+    "Aborisadede Timilehin Ayomide","Adebisi Mahfouz Adewole","Adekunle Samuel Ayomikun",
+    "Adeyemi Obasanjo Toheeb","Ikpengwa Emmanuel","Olofintoye Victor Omobarewa",
+    "Olumide Erioluwa Emmanuel","Oluwadare Praise Ayowamide","Gabriel Victor Kachisieme",
+    "Adeola Precious Eniola","Afolalu Faith Toluwanimi","Olorunmaiye Nifemi Faith",
+    "Ariyo Elizabeth Celestina"
+  ]
+};
+
+/* Display labels — order of subjects in the JSON output */
+const SUBJECT_LABELS = {
+  mathematics: "MATHEMATICS",
+  english_language: "ENGLISH LANGUAGE.",
+  english_literature: "LITERATURE IN ENGLISH",
+  literature_in_english: "LITERATURE IN ENGLISH",
+  intermediate_science: "INTERMEDIATE SCIENCE",
+  digital_technology: "DIGITAL TECHNOLOGY",
+  chemistry: "CHEMISTRY",
+  biology: "BIOLOGY",
+  physics: "PHYSICS",
+  agricultural_science: "AGRICULTURAL SCIENCE",
+  livestock_farming: "LIVESTOCK FARMING",
+  food_and_nutrition: "FOOD AND NUTRITION",
+  further_mathematics: "FURTHER MATHEMATICS",
+  social_Studies: "SOCIAL STUDIES",
+  citizenship_education: "CITIZENSHIP & HERITAGE",
+  nigerian_history: "HISTORY",
+  history: "HISTORY",
+  business_studies: "BUSINESS STUDIES",
+  account: "FINANCIAL ACCOUNTING",
+  commerce: "COMMERCE",
+  marketing: "MARKETING",
+  economics: "ECONOMICS",
+  government: "GOVERNMENT",
+  cultural_and_creative_art: "CCA",
+  fine_art: "FINE ART",
+  yoruba: "YORUBA",
+  phe: "PHE",
+  crs: "CRK",
+  french: "FRENCH",
+  music: "MUSIC",
+  phonetics: "PHONETICS | DICTION",
+  ekiti_values: "EKITI VALUES"
+};
+
+/* Order of subjects in output — from your example */
+const SUBJECT_ORDER = [
+  "english_language",
+  "mathematics",
+  "digital_technology",
+  "citizenship_education",
+  "crs",
+  "nigerian_history",
+  "yoruba",
+  "phe",
+  "french",
+  "social_Studies",
+  "business_studies",
+  "intermediate_science",  // shown as "BASIC SCIENCE" in your example
+  "cultural_and_creative_art",
+  // senior extras
+  "english_literature","literature_in_english",
+  "chemistry","biology","physics",
+  "agricultural_science","livestock_farming","food_and_nutrition","further_mathematics",
+  "history","account","commerce","marketing","economics","government",
+  "fine_art","music","phonetics","ekiti_values"
+];
+
+/* ============================================================
+   4. HELPERS
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+const statusEl = $("status");
+
+function setStatus(msg, type = "info") {
+  statusEl.className = "status " + type;
+  statusEl.textContent = msg;
+}
+function log(msg, type = "info") {
+  const area = $("log");
+  const t = new Date().toLocaleTimeString();
+  const cls = ["success","error","info","warn"].includes(type) ? type : "info";
+  area.innerHTML += `\n<span class="${cls}">[${t}] ${msg}</span>`;
+  area.scrollTop = area.scrollHeight;
+}
+function studentKey(name) {
+  return name.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^\w_]/g, "");
+}
+function numOrDash(v) {
+  if (v === "" || v === null || v === undefined) return "-";
+  const n = Number(v);
+  return isNaN(n) ? v : n;
+}
+
+/* ============================================================
+   5. DROPDOWN LOGIC
+   ============================================================ */
+const sessionSel = $("sessionSel");
+const classSel   = $("classSel");
+const studentSel = $("studentSel");
+
+const CLASSES = ["JSS1","JSS2","JSS3","SS1","SS2","SS3"];
+
+sessionSel.addEventListener("change", () => {
+  if (sessionSel.value) {
+    classSel.disabled = false;
+    classSel.innerHTML = '<option value="">— select —</option>';
+    CLASSES.forEach(c => {
+      const o = document.createElement("option");
+      o.value = c; o.textContent = c;
+      classSel.appendChild(o);
+    });
+  } else {
+    classSel.disabled = true;
+    classSel.innerHTML = '<option value="">— select session first —</option>';
+  }
+  studentSel.disabled = true;
+  studentSel.innerHTML = '<option value="">— select class first —</option>';
+  refreshButtons();
+});
+
+classSel.addEventListener("change", () => {
+  const cls = classSel.value;
+  studentSel.innerHTML = "";
+  if (cls) {
+    studentSel.disabled = false;
+    studentSel.innerHTML = '<option value="">— select —</option>';
+    (USERS[cls] || []).forEach(n => {
+      const o = document.createElement("option");
+      o.value = n; o.textContent = n;
+      studentSel.appendChild(o);
+    });
+  } else {
+    studentSel.disabled = true;
+    studentSel.innerHTML = '<option value="">— select class first —</option>';
+  }
+  refreshButtons();
+});
+
+studentSel.addEventListener("change", refreshButtons);
+
+function refreshButtons() {
+  const ready = sessionSel.value && classSel.value && studentSel.value;
+  $("previewBtn").disabled = !ready;
+  $("downloadBtn").disabled = !ready;
+}
+
+/* ============================================================
+   6. FETCH + TRANSFORM
+   ============================================================ */
+async function buildStudentJson() {
+  const session = sessionSel.value;
+  const cls     = classSel.value;
+  const name    = studentSel.value;
+  const skey    = studentKey(name);
+  const path    = `/reports/${session}/${cls}/${skey}`;
+
+  log(`⏳ Fetching ${path} …`, "info");
+  const snap = await db.ref(path).once("value");
+  const data = snap.val();
+
+  if (!data) {
+    throw new Error(`No record found for ${name} in ${cls} · ${session}.`);
+  }
+
+  /* ---------- Student block ---------- */
+  const s = data.student || {};
+  const student = {
+    name: (s.name || name).toUpperCase(),
+    class: cls,                          // "JSS1", "JSS2", …
+    term: (s.term || "FIRST").toUpperCase(),
+    session: (s.session || session).replace("-", "/"),
+    house: s.house || "",
+    attendance: s.attendance !== undefined && s.attendance !== "" ? Number(s.attendance) : "",
+    outOf: s.outOf !== undefined && s.outOf !== "" ? Number(s.outOf) : "",
+    numberInClass: s.numberInClass !== undefined && s.numberInClass !== "" ? Number(s.numberInClass) : "",
+    image: s.image || `img/${skey}.png`
+  };
+
+  /* ---------- Subjects (array of arrays) ----------
+     Format: [label, test1, test2, test3, ass1, ass2, ass3,
+              casum, exam, total, cummBf, cummScore, avg, pos, grade] */
+  const subsObj = data.subjects || {};
+  const orderedKeys = [
+    ...SUBJECT_ORDER.filter(k => subsObj[k]),
+    ...Object.keys(subsObj).filter(k => !SUBJECT_ORDER.includes(k))
+  ];
+
+  const subjects = orderedKeys.map(k => {
+    const s = subsObj[k] || {};
+    return [
+      SUBJECT_LABELS[k] || k.toUpperCase(),
+      numOrDash(s.test1),
+      numOrDash(s.test2),
+      numOrDash(s.test3),
+      numOrDash(s.ass1),
+      numOrDash(s.ass2),
+      numOrDash(s.ass3),
+      numOrDash(s.casum),
+      numOrDash(s.exam),
+      numOrDash(s.total),
+      numOrDash(s.cummBf),
+      numOrDash(s.cummScore),
+      numOrDash(s.avg),
+      s.pos && s.pos !== "" ? s.pos : "-",
+      s.grade && s.grade !== "" ? s.grade : "-"
+    ];
+  });
+
+  /* ---------- Character Development ---------- */
+  const charObj = data.characterDevelopment || {};
+  const charOrder = ["Punctuality","Attentiveness","Neatness","Honesty","Relationship"];
+  const characterDevelopment = charOrder.map(name => {
+    const item = charObj[name] || Object.values(charObj).find(x => (x.trait || "") === name) || {};
+    return { trait: name, rating: item.rating !== undefined && item.rating !== "" ? Number(item.rating) : "" };
+  });
+
+  /* ---------- Practical Skills ---------- */
+  const pracObj = data.practicalSkills || {};
+  const pracOrder = ["Sport","Club","Fluency","Handwriting"];
+  const practicalSkills = pracOrder.map(name => {
+    const item = pracObj[name] || Object.values(pracObj).find(x => (x.skill || "") === name) || {};
+    return { skill: name, rating: item.rating !== undefined && item.rating !== "" ? Number(item.rating) : "" };
+  });
+
+  /* ---------- Remarks ---------- */
+  const r = data.remarks || {};
+  const remarks = [
+    { category: "Teacher Remark",       text: r.teacher   || r["Teacher Remark"]       || "" },
+    { category: "House masters Remark", text: r.house     || r["House masters Remark"] || r["House Master Remark"] || "" },
+    { category: "Principal Remark",     text: r.principal || r["Principal Remark"]     || "" },
+    { category: "Next Term",            text: r.nextTerm  || r["Next Term"]            || "" },
+    { category: "Promoted To",          text: r.promotedTo|| r["Promoted To"]          || "" }
+  ];
+
+  return {
+    student,
+    subjects,
+    characterDevelopment,
+    practicalSkills,
+    remarks
+  };
+}
+
+/* ============================================================
+   7. PREVIEW
+   ============================================================ */
+$("previewBtn").addEventListener("click", async () => {
+  const box = $("previewBox");
+  box.classList.remove("show");
+  box.textContent = "";
+  setStatus("⏳ Building JSON…", "info");
+
+  try {
+    const obj = await buildStudentJson();
+    const json = JSON.stringify(obj, null, 4);
+    box.textContent = json;
+    box.classList.add("show");
+    setStatus("✅ Preview ready. Check the JSON below.", "success");
+    log(`✅ Built JSON for ${obj.student.name} (${obj.subjects.length} subjects).`, "success");
+  } catch (err) {
+    setStatus("❌ " + err.message, "error");
+    log("❌ " + err.message, "error");
+  }
+});
+
+/* ============================================================
+   8. DOWNLOAD
+   ============================================================ */
+$("downloadBtn").addEventListener("click", async () => {
+  setStatus("⏳ Building JSON…", "info");
+  try {
+    const obj = await buildStudentJson();
+    const json = JSON.stringify(obj, null, 4);
+
+    // Filename: <STUDENT_NAME>_<CLASS>_<SESSION>.json
+    const safeName = obj.student.name.replace(/[^\w]+/g, "_").replace(/^_|_$/g, "");
+    const safeSession = obj.student.session.replace(/\//g, "-");
+    const filename = `${safeName}_${obj.student.class}_${safeSession}.json`;
+
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 500);
+
+    setStatus(`✅ Downloaded: ${filename}`, "success");
+    log(`📥 Downloaded ${filename}`, "success");
+  } catch (err) {
+    setStatus("❌ " + err.message, "error");
+    log("❌ " + err.message, "error");
+  }
+});
+
+/* ============================================================
+   9. RESET
+   ============================================================ */
+$("resetBtn").addEventListener("click", () => {
+  sessionSel.value = "";
+  classSel.disabled = true;
+  classSel.innerHTML = '<option value="">— select session first —</option>';
+  studentSel.disabled = true;
+  studentSel.innerHTML = '<option value="">— select class first —</option>';
+  $("previewBox").classList.remove("show");
+  $("previewBox").textContent = "";
+  setStatus("Reset.", "info");
+  refreshButtons();
+});
+
+/* ============================================================
+   10. HEADER BUTTONS
+   ============================================================ */
+$("backBtn").addEventListener("click", () => window.location.href = "dashboard.html");
+$("logoutBtn").addEventListener("click", async () => {
+  if (!confirm("Log out?")) return;
+  try { await auth.signOut(); } catch (e) {}
+  sessionStorage.clear();
+  window.location.replace("login.html");
+});
+
+/* ============================================================
+   11. INIT
+   ============================================================ */
+log("📦 Export Student JSON page loaded.", "success");
+log("💡 Pick session → class → student, then Preview or Download.", "info");
+</script>
+</body>
+</html>
