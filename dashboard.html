@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard · Wisdom Foundation Portal</title>
+
+<!-- Firebase compat SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f7efe0 0%, #e8d7ba 100%);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1f1c18;
+    padding: 30px 20px;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #7a3f0e;
+  }
+  header .user {
+    font-size: 0.8rem;
+    color: #6f6456;
+  }
+  .logout-btn {
+    padding: 8px 18px;
+    background: #8b1a1a;
+    color: white;
+    border: 2px solid #5f0f0f;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #3d0a0a;
+    transition: 0.1s;
+  }
+  .logout-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #3d0a0a;
+  }
+
+  .card {
+    background: white;
+    border: 2px solid #b87c44;
+    border-radius: 14px;
+    padding: 28px 26px;
+    box-shadow: 0 8px 24px rgba(122, 63, 14, 0.12);
+  }
+  .card h2 {
+    margin: 0 0 4px;
+    font-size: 1.15rem;
+    color: #7a3f0e;
+  }
+  .card .hint {
+    font-size: 0.82rem;
+    color: #6f6456;
+    margin-bottom: 22px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin: 16px 0 6px;
+    color: #5f3d1a;
+  }
+  select, input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #b87c44;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #fdfaf5;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
+  }
+  select:focus, input:focus {
+    outline: none;
+    border-color: #7a3f0e;
+    background: white;
+  }
+  select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: #f0e8dc;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 640px) {
+    .row { grid-template-columns: 1fr; }
+  }
+
+  .actions {
+    margin-top: 28px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.1s;
+    border: 2px solid;
+  }
+  .btn-primary {
+    background: #b55a1a;
+    color: white;
+    border-color: #7d3c0c;
+    box-shadow: 4px 4px 0 #5f2e0a;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #5f2e0a;
+  }
+  .btn-secondary {
+    background: #1e2f3f;
+    color: white;
+    border-color: #1a2937;
+    box-shadow: 3px 3px 0 #0f1a24;
+  }
+  .btn-secondary:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #0f1a24;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .status {
+    margin-top: 18px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
+  }
+  .status.info    { display: block; background: #bbdefb; color: #0d3b66; }
+  .status.error   { display: block; background: #ffcdd2; color: #8b1a1a; }
+  .status.success { display: block; background: #c8e6c9; color: #1e4a2a; }
+
+  .preview {
+    margin-top: 18px;
+    padding: 12px 16px;
+    background: #1e1a16;
+    color: #e8e0d6;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    word-break: break-all;
+    display: none;
+  }
+  .preview.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>🏫 Wisdom Foundation Dashboard</h1>
+      <div class="user" id="userInfo">—</div>
+    </div>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </header>
+
+  <div class="card">
+    <h2>📄 Report Sheet Lookup</h2>
+    <div class="hint">Select a session, class, and student to open or create their report sheet.</div>
+
+    <label for="sessionSelect">Academic Session</label>
+    <select id="sessionSelect">
+      <option value="">— Select session —</option>
+      <option value="2026-2027">2026 – 2027</option>
+      <option value="2027-2028">2027 – 2028</option>
+      <option value="2028-2029">2028 – 2029</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label for="classSelect">Class</label>
+        <select id="classSelect" disabled>
+          <option value="">— Select class —</option>
+          <option value="JSS1">JSS 1</option>
+          <option value="JSS2">JSS 2</option>
+          <option value="JSS3">JSS 3</option>
+          <option value="SS1">SS 1</option>
+          <option value="SS2">SS 2</option>
+          <option value="SS3">SS 3</option>
+        </select>
+      </div>
+      <div>
+        <label for="studentSelect">Student Name</label>
+        <select id="studentSelect" disabled>
+          <option value="">— Select student —</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="nextBtn" disabled>Next →</button>
+      <button class="btn btn-secondary" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="preview" id="preview"></div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   1. FIREBASE CONFIG
+   ============================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBcbySKjFMndLDDYr6XOKPoX0rcUqY5dp4",
+  authDomain:        "wisdom-firsterm-records26-27.firebaseapp.com",
+  databaseURL:       "https://wisdom-firsterm-records26-27-default-rtdb.firebaseio.com",
+  projectId:         "wisdom-firsterm-records26-27",
+  storageBucket:     "wisdom-firsterm-records26-27.firebasestorage.app",
+  messagingSenderId: "476083129496",
+  appId:             "1:476083129496:web:25fcd0a42a1c10bfa7d4ed",
+  measurementId:     "G-0PJ3GJYY80"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+/* ============================================================
+   2. SESSION GUARD
+   ============================================================ */
+if (sessionStorage.getItem("wfs_logged_in") !== "true") {
+  window.location.replace("login.html");
+}
+
+// Also verify Firebase still has a user (in case of refresh)
+auth.onAuthStateChanged((user) => {
+  if (!user) {
+    sessionStorage.removeItem("wfs_logged_in");
+    window.location.replace("login.html");
+  } else {
+    document.getElementById("userInfo").textContent = "Signed in as " + user.email;
+  }
+});
+
+/* ============================================================
+   3. USERS ARRAY — grouped by class
+   (Pulled from Part 6; duplicates/passwords ignored for now)
+   ============================================================ */
+const USERS = {
+  "JSS1": [
+    "Ademola Olamide K",
+    "Ige Promise J",
+    "Ojuoluwa David A",
+    "Tayo-Amos Samuel I",
+    "Adebayo Aishat S",
+    "Ajibade Fadesola Ike",
+    "Ayoola Veronica Inis",
+    "Chukwuemeka Tifeany S.",
+    "Ifeanyi Peace C",
+    "Ogunmiloyo Anjola J"
+  ],
+  "JSS2": [
+    "Shehu Ahmeed Marvelous",
+    "Fasuan Obaloluwa Adebowale",
+    "ojo pemisire adesewa"
+  ],
+  "JSS3": [
+    "George Emmanuel",
+    "Adejemilua Peter",
+    "Oke Ayobami",
+    "Chukwuemeka Emmanuel",
+    "Olorungbohunmi Ayo",
+    "Dada Tiwalade",
+    "Nafiu Habibat",
+    "Fasuan Adetutu",
+    "Salami Semilore",
+    "Shinaola Treasure",
+    "Adebisi Azeem S",
+    "Ajibade Adeola"
+  ],
+  "SS1": [
+    "Abdulateef Qudus Ademola",
+    "Isaac Richard Feranmi",
+    "Ogunmiloyo Inioluwa David",
+    "Oladiti David Henry",
+    "Adebayo Khadijat Iyanu",
+    "Akindele Dunsi Faith",
+    "Olusola Divine Oluwaseun",
+    "Umar Fatima Lamine",
+    "Ajisola Destiny K",
+    "Oladapo Fiyinfoluwa B",
+    "Salawudeen Abdulquadri B"
+  ],
+  "SS2": [
+    "Ajisafe Ezekeil",
+    "Omolade Darasimi",
+    "Owolabi Timilehin Testimony",
+    "Umar Aliyu",
+    "Oke Inumidun",
+    "Lawal Desmond",
+    "Adefisayo Abdul Akorede"
+  ],
+  "SS3": [
+    "Aborisadede Timilehin Ayomide",
+    "Adebisi Mahfouz Adewole",
+    "Adekunle Samuel Ayomikun",
+    "Adeyemi Obasanjo Toheeb",
+    "Ikpengwa Emmanuel",
+    "Olofintoye Victor Omobarewa",
+    "Olumide Erioluwa Emmanuel",
+    "Oluwadare Praise Ayowamide",
+    "Gabriel Victor Kachisieme",
+    "Adeola Precious Eniola",
+    "Afolalu Faith Toluwanimi",
+    "Olorunmaiye Nifemi Faith",
+    "Ariyo Elizabeth Celestina"
+  ]
+};
+
+/* ============================================================
+   4. DOM REFS
+   ============================================================ */
+const sessionSelect = document.getElementById("sessionSelect");
+const classSelect   = document.getElementById("classSelect");
+const studentSelect = document.getElementById("studentSelect");
+const nextBtn       = document.getElementById("nextBtn");
+const resetBtn      = document.getElementById("resetBtn");
+const logoutBtn     = document.getElementById("logoutBtn");
+const statusEl      = document.getElementById("status");
+const previewEl     = document.getElementById("preview");
+
+function setStatus(msg, type = "info") {
+  statusEl.className = "status " + type;
+  statusEl.textContent = msg;
+}
+function clearStatus() {
+  statusEl.className = "status";
+  statusEl.textContent = "";
+}
+function updatePreview() {
+  const s = sessionSelect.value;
+  const c = classSelect.value;
+  const n = studentSelect.value;
+  if (s && c && n) {
+    const params = new URLSearchParams({ session: s, class: c, student: n });
+    previewEl.textContent = "➡️ report.html?" + params.toString();
+    previewEl.classList.add("show");
+  } else {
+    previewEl.classList.remove("show");
+  }
+}
+function checkReady() {
+  const ok = sessionSelect.value && classSelect.value && studentSelect.value;
+  nextBtn.disabled = !ok;
+  updatePreview();
+}
+
+/* ============================================================
+   5. DROPDOWN LOGIC
+   ============================================================ */
+
+// Session change → enable class
+sessionSelect.addEventListener("change", () => {
+  clearStatus();
+  if (sessionSelect.value) {
+    classSelect.disabled = false;
+  } else {
+    classSelect.disabled = true;
+  }
+  // reset downstream
+  classSelect.value = "";
+  studentSelect.innerHTML = '<option value="">— Select student —</option>';
+  studentSelect.disabled = true;
+  checkReady();
+});
+
+// Class change → populate students
+classSelect.addEventListener("change", () => {
+  clearStatus();
+  const cls = classSelect.value;
+  studentSelect.innerHTML = '<option value="">— Select student —</option>';
+
+  if (!cls) {
+    studentSelect.disabled = true;
+    checkReady();
+    return;
+  }
+
+  const list = USERS[cls] || [];
+  if (list.length === 0) {
+    setStatus("⚠️ No students found for " + cls, "error");
+    studentSelect.disabled = true;
+    checkReady();
+    return;
+  }
+
+  list.forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    studentSelect.appendChild(opt);
+  });
+  studentSelect.disabled = false;
+  checkReady();
+});
+
+// Student change → enable next
+studentSelect.addEventListener("change", checkReady);
+
+/* ============================================================
+   6. NEXT BUTTON → redirect to report.html
+   ============================================================ */
+nextBtn.addEventListener("click", () => {
+  const session = sessionSelect.value;
+  const cls     = classSelect.value;
+  const student = studentSelect.value;
+
+  if (!session || !cls || !student) {
+    setStatus("⚠️ Please complete all selections.", "error");
+    return;
+  }
+
+  const params = new URLSearchParams({
+    session: session,
+    class: cls,
+    student: student
+  });
+
+  setStatus("✅ Opening report sheet…", "success");
+  setTimeout(() => {
+    window.location.href = "report.html?" + params.toString();
+  }, 400);
+});
+
+/* ============================================================
+   7. RESET
+   ============================================================ */
+resetBtn.addEventListener("click", () => {
+  sessionSelect.value = "";
+  classSelect.value = "";
+  classSelect.disabled = true;
+  studentSelect.innerHTML = '<option value="">— Select student —</option>';
+  studentSelect.disabled = true;
+  clearStatus();
+  checkReady();
+});
+
+/* ============================================================
+   8. LOGOUT
+   ============================================================ */
+logoutBtn.addEventListener("click", async () => {
+  if (!confirm("Log out of the portal?")) return;
+  try {
+    await auth.signOut();
+  } catch (e) {
+    console.warn("Sign-out error:", e);
+  }
+  sessionStorage.removeItem("wfs_logged_in");
+  sessionStorage.removeItem("wfs_user_email");
+  sessionStorage.removeItem("wfs_login_time");
+  window.location.replace("login.html");
+});
+
+/* ============================================================
+   9. INIT
+   ============================================================ */
+checkReady();
+</script>
+</body>
+</html>
