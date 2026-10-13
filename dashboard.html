@@ -209,10 +209,15 @@
       <h1>🏫 Wisdom Foundation Dashboard</h1>
       <div class="user" id="userInfo">—</div>
     </div>
-    <div class="header-actions">
+    <!--<div class="header-actions">
       <button class="seed-btn" id="seedBtn">🌱 Seed</button>
       <button class="logout-btn" id="logoutBtn">Logout</button>
-    </div>
+    </div>-->
+    <div class="header-actions">
+  <button class="seed-btn" id="ieBtn" style="background:#0d6b7a; border-color:#0a4f5a; box-shadow:3px 3px 0 #06333a;">📥📤 Import/Export</button>
+  <button class="seed-btn" id="seedBtn">🌱 Seed</button>
+  <button class="logout-btn" id="logoutBtn">Logout</button>
+</div>
   </header>
 
   <div class="card">
@@ -381,6 +386,7 @@ const logoutBtn     = document.getElementById("logoutBtn");
 const seedBtn       = document.getElementById("seedBtn");
 const statusEl      = document.getElementById("status");
 const previewEl     = document.getElementById("preview");
+const ieBtn = document.getElementById("ieBtn");
 
 function setStatus(msg, type = "info") {
   statusEl.className = "status " + type;
@@ -505,8 +511,16 @@ resetBtn.addEventListener("click", () => {
   checkReady();
 });
 
+  /* ============================================================
+     9. IMPORT EXPORT BUTTONS
+     ============================================================ */
+
+   ieBtn.addEventListener("click", () => {
+    window.location.href = "import-export.html";
+  });
+
 /* ============================================================
-   9. LOGOUT
+   10. LOGOUT
    ============================================================ */
 logoutBtn.addEventListener("click", async () => {
   if (!confirm("Log out of the portal?")) return;
@@ -522,7 +536,7 @@ logoutBtn.addEventListener("click", async () => {
 });
 
 /* ============================================================
-   10. INIT
+   11. INIT
    ============================================================ */
 checkReady();
 </script>
