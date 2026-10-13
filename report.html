@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report Sheet · Wisdom Foundation Portal</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #f7efe0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1f1c18;
+    padding: 24px 16px 80px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+
+  header.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  header.topbar h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    color: #7a3f0e;
+  }
+  header.topbar .meta {
+    font-size: 0.8rem;
+    color: #6f6456;
+  }
+
+  .btn {
+    padding: 10px 22px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.1s;
+    border: 2px solid;
+    font-family: inherit;
+  }
+  .btn-primary  { background: #b55a1a; color: #fff; border-color: #7d3c0c; box-shadow: 3px 3px 0 #5f2e0a; }
+  .btn-primary:hover:not(:disabled)  { transform: translate(2px,2px); box-shadow: 1px 1px 0 #5f2e0a; }
+  .btn-secondary{ background: #1e2f3f; color: #fff; border-color: #1a2937; box-shadow: 3px 3px 0 #0f1a24; }
+  .btn-secondary:hover:not(:disabled){ transform: translate(2px,2px); box-shadow: 1px 1px 0 #0f1a24; }
+  .btn-success  { background: #2b6e4e; color: #fff; border-color: #1f5a3e; box-shadow: 3px 3px 0 #1a452f; }
+  .btn-success:hover:not(:disabled)  { transform: translate(2px,2px); box-shadow: 1px 1px 0 #1a452f; }
+  .btn-danger   { background: #8b1a1a; color: #fff; border-color: #5f0f0f; box-shadow: 3px 3px 0 #3d0a0a; }
+  .btn-danger:hover:not(:disabled)   { transform: translate(2px,2px); box-shadow: 1px 1px 0 #3d0a0a; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; transform: none; }
+
+  .card {
+    background: #fff;
+    border: 2px solid #b87c44;
+    border-radius: 12px;
+    padding: 22px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 6px 16px rgba(122,63,14,0.08);
+  }
+  .card h2 {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    color: #7a3f0e;
+    border-bottom: 2px double #d7b893;
+    padding-bottom: 8px;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.78rem;
+    margin: 10px 0 4px;
+    color: #5f3d1a;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 2px solid #d7b893;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    background: #fdfaf5;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #7a3f0e;
+    background: #fff;
+  }
+  input[readonly] { background: #f0e8dc; color: #6f6456; }
+
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 900px) { .grid-4 { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 640px) {
+    .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  table th, table td {
+    border: 1px solid #d7b893;
+    padding: 5px 6px;
+    text-align: center;
+  }
+  table th {
+    background: #f5ede0;
+    color: #5f3d1a;
+    font-weight: 700;
+    font-size: 0.75rem;
+  }
+  table td.subj-name {
+    text-align: left;
+    font-weight: 600;
+    color: #5f3d1a;
+    padding-left: 10px;
+    white-space: nowrap;
+  }
+  table td input {
+    padding: 5px 4px;
+    font-size: 0.82rem;
+    text-align: center;
+    border-width: 1px;
+    border-radius: 4px;
+    background: #fff;
+  }
+  table td.calc {
+    background: #f5ede0;
+    font-weight: 700;
+    color: #7a3f0e;
+  }
+  .table-scroll { overflow-x: auto; }
+
+  .skills-table td.subj-name { width: 200px; }
+  .skills-table input { text-align: center; }
+
+  .remarks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 700px) {
+    .remarks-grid { grid-template-columns: 1fr; }
+  }
+  textarea { min-height: 70px; resize: vertical; }
+
+  .actions-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.97);
+    border-top: 2px solid #b87c44;
+    padding: 12px 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+    z-index: 100;
+  }
+
+  .status {
+    margin-top: 14px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
+    text-align: center;
+  }
+  .status.info    { display: block; background: #bbdefb; color: #0d3b66; }
+  .status.error   { display: block; background: #ffcdd2; color: #8b1a1a; }
+  .status.success { display: block; background: #c8e6c9; color: #1e4a2a; }
+  .status.warning { display: block; background: #fff3cd; color: #7a5a0a; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    header.topbar, .actions-bar, .status { display: none !important; }
+    .card { border: 1px solid #999; box-shadow: none; page-break-inside: avoid; }
+    input, select, textarea { border: none; background: transparent; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="topbar">
+    <div>
+      <h1>📄 Report Sheet</h1>
+      <div class="meta" id="headerMeta">Loading…</div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button class="btn btn-secondary" id="backBtn">← Back</button>
+      <button class="btn btn-danger" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div id="status" class="status"></div>
+
+  <!-- STUDENT HEADER -->
+  <div class="card">
+    <h2>👤 Student Information</h2>
+    <div class="grid-4">
+      <div><label>Student Name</label><input id="f_name" readonly></div>
+      <div><label>Class</label><input id="f_class" readonly></div>
+      <div><label>Term</label>
+        <select id="f_term">
+          <option value="FIRST">FIRST</option>
+          <option value="SECOND">SECOND</option>
+          <option value="THIRD">THIRD</option>
+        </select>
+      </div>
+      <div><label>Session</label><input id="f_session" readonly></div>
+      <div><label>House</label><input id="f_house" placeholder="e.g. Gold"></div>
+      <div><label>Attendance</label><input id="f_attendance" type="number" min="0"></div>
+      <div><label>Out of</label><input id="f_outOf" type="number" min="0"></div>
+      <div><label>Number in Class</label><input id="f_numberInClass" type="number" min="0"></div>
+    </div>
+  </div>
+
+  <!-- SUBJECTS -->
+  <div class="card">
+    <h2>📚 Subject Scores</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left; padding-left:10px;">Subject</th>
+            <th>Test 1</th><th>Test 2</th><th>Test 3</th>
+            <th>Ass 1</th><th>Ass 2</th><th>Ass 3</th>
+            <th>Exam</th>
+            <th>Total</th>
+            <th>Position</th>
+          </tr>
+        </thead>
+        <tbody id="subjectsBody">
+          <!-- filled by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CHARACTER -->
+  <div class="card">
+    <h2>🌟 Character Development</h2>
+    <div class="table-scroll">
+      <table class="skills-table">
+        <thead>
+          <tr><th style="text-align:left; padding-left:10px;">Trait</th><th>Rating (1–5)</th></tr>
+        </thead>
+        <tbody id="characterBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PRACTICAL SKILLS -->
+  <div class="card">
+    <h2>🤸 Practical Skills</h2>
+    <div class="table-scroll">
+      <table class="skills-table">
+        <thead>
+          <tr><th style="text-align:left; padding-left:10px;">Skill</th><th>Rating (1–5)</th></tr>
+        </thead>
+        <tbody id="practicalBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REMARKS -->
+  <div class="card">
+    <h2>💬 Remarks</h2>
+    <div class="remarks-grid">
+      <div><label>Teacher Remark</label><textarea id="r_teacher"></textarea></div>
+      <div><label>House Master Remark</label><textarea id="r_house"></textarea></div>
+      <div><label>Principal Remark</label><textarea id="r_principal"></textarea></div>
+      <div><label>Next Term Begins</label><textarea id="r_nextTerm"></textarea></div>
+      <div style="grid-column: 1 / -1;"><label>Promoted To</label><input id="r_promotedTo"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="actions-bar">
+  <button class="btn btn-success" id="saveBtn">💾 Save</button>
+  <button class="btn btn-primary" id="printBtn">🖨️ Print</button>
+  <button class="btn btn-secondary" id="reloadBtn">🔄 Reload</button>
+</div>
+
+<script>
+/* ============================================================
+   1. FIREBASE CONFIG
+   ============================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBcbySKjFMndLDDYr6XOKPoX0rcUqY5dp4",
+  authDomain:        "wisdom-firsterm-records26-27.firebaseapp.com",
+  databaseURL:       "https://wisdom-firsterm-records26-27-default-rtdb.firebaseio.com",
+  projectId:         "wisdom-firsterm-records26-27",
+  storageBucket:     "wisdom-firsterm-records26-27.firebasestorage.app",
+  messagingSenderId: "476083129496",
+  appId:             "1:476083129496:web:25fcd0a42a1c10bfa7d4ed",
+  measurementId:     "G-0PJ3GJYY80"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.database();
+
+/* ============================================================
+   2. SESSION GUARD
+   ============================================================ */
+if (sessionStorage.getItem("wfs_logged_in") !== "true") {
+  window.location.replace("login.html");
+}
+auth.onAuthStateChanged((user) => {
+  if (!user) {
+    sessionStorage.removeItem("wfs_logged_in");
+    window.location.replace("login.html");
+  }
+});
+
+/* ============================================================
+   3. SUBJECT LISTS
+   ============================================================ */
+const JUNIOR_SUBJECTS = [
+  { key: "mathematics",           label: "Mathematics" },
+  { key: "english_language",      label: "English Language" },
+  { key: "english_literature",    label: "Literature in English" },
+  { key: "intermediate_science",  label: "Intermediate Science" },
+  { key: "digital_technology",    label: "Computer Studies" },
+  { key: "food_and_nutrition",    label: "Food And Nutrition" },
+  { key: "livestock_farming",     label: "Livestock Farming" },
+  { key: "social_Studies",        label: "Social | Citizenship Studies" },
+  { key: "business_studies",      label: "Business Studies" },
+  { key: "cultural_and_creative_art", label: "Cultural & Creative Art" },
+  { key: "yoruba",                label: "Yoruba" },
+  { key: "phe",                   label: "Physical Health Education" },
+  { key: "crs",                   label: "Christian Religious Studies" },
+  { key: "french",                label: "French" },
+  { key: "music",                 label: "Music" },
+  { key: "phonetics",             label: "Phonetics | Diction" },
+  { key: "nigerian_history",      label: "History" },
+  { key: "agricultural_science",  label: "Agricultural Science" },
+  { key: "fine_art",              label: "Fine Art" },
+  { key: "ekiti_values",          label: "Ekiti Values" }
+];
+
+const SENIOR_SUBJECTS = [
+  { key: "mathematics",            label: "Mathematics" },
+  { key: "english_language",       label: "English Language" },
+  { key: "chemistry",              label: "Chemistry" },
+  { key: "biology",                label: "Biology" },
+  { key: "yoruba",                 label: "Yoruba" },
+  { key: "citizenship_education",  label: "Citizenship | Heritage Studies" },
+  { key: "livestock_farming",      label: "Livestock Farming" },
+  { key: "agricultural_science",   label: "Agricultural Science" },
+  { key: "literature_in_english",  label: "Literature in English" },
+  { key: "crs",                    label: "Christian Religious Studies" },
+  { key: "physics",                label: "Physics" },
+  { key: "digital_technology",     label: "Digital Technology" },
+  { key: "economics",              label: "Economics" },
+  { key: "geography",              label: "Geography" },
+  { key: "account",                label: "Financial Accounting" },
+  { key: "government",             label: "Government" },
+  { key: "commerce",               label: "Commerce" },
+  { key: "marketing",              label: "Marketing" },
+  { key: "fine_art",               label: "Fine Art" },
+  { key: "further_mathematics",    label: "Further Mathematics" },
+  { key: "history",                label: "Nigerian History" },
+  { key: "phonetics",              label: "Phonetics" }
+];
+
+const CHARACTER_TRAITS = [
+  "Punctuality", "Attentiveness", "Neatness", "Honesty", "Relationship"
+];
+const PRACTICAL_SKILLS = ["Sport", "Club", "Fluency", "Handwriting"];
+
+/* ============================================================
+   4. URL PARAMS
+   ============================================================ */
+const params  = new URLSearchParams(window.location.search);
+const session = params.get("session");
+const cls     = params.get("class");
+const student = params.get("student");
+
+if (!session || !cls || !student) {
+  document.body.innerHTML = "<div style='padding:40px; font-family:sans-serif;'>" +
+    "<h2>⚠️ Missing parameters</h2>" +
+    "<p>URL must include <code>session</code>, <code>class</code>, and <code>student</code>.</p>" +
+    "<a href='dashboard.html'>← Back to dashboard</a></div>";
+  throw new Error("Missing URL params");
+}
+
+const studentKey = student.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^\w_]/g, "");
+const dataPath   = `/reports/${session}/${cls}/${studentKey}`;
+const isSenior   = cls.startsWith("SS");
+const subjects   = isSenior ? SENIOR_SUBJECTS : JUNIOR_SUBJECTS;
+
+document.getElementById("headerMeta").textContent =
+  `${cls} · ${session} · ${student}`;
+
+/* ============================================================
+   5. DOM REFS
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+const statusEl = $("status");
+
+function setStatus(msg, type = "info") {
+  statusEl.className = "status " + type;
+  statusEl.textContent = msg;
+  if (type === "success") {
+    setTimeout(() => { statusEl.className = "status"; }, 4000);
+  }
+}
+
+/* ============================================================
+   6. BUILD SUBJECT ROWS
+   ============================================================ */
+function buildSubjectRows() {
+  const tbody = $("subjectsBody");
+  tbody.innerHTML = "";
+  subjects.forEach(subj => {
+    const tr = document.createElement("tr");
+    tr.dataset.key = subj.key;
+    tr.innerHTML = `
+      <td class="subj-name">${subj.label}</td>
+      <td><input type="number" data-field="test1" min="0" max="100"></td>
+      <td><input type="number" data-field="test2" min="0" max="100"></td>
+      <td><input type="number" data-field="test3" min="0" max="100"></td>
+      <td><input type="number" data-field="ass1"  min="0" max="100"></td>
+      <td><input type="number" data-field="ass2"  min="0" max="100"></td>
+      <td><input type="number" data-field="ass3"  min="0" max="100"></td>
+      <td><input type="number" data-field="exam"  min="0" max="100"></td>
+      <td class="calc" data-calc="total">–</td>
+      <td><input type="text" data-field="pos" placeholder="1st"></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // live-calc listeners
+  tbody.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("input", () => recalcRow(tr));
+  });
+}
+
+function recalcRow(tr) {
+  const get = (f) => {
+    const el = tr.querySelector(`input[data-field="${f}"]`);
+    const v = parseFloat(el.value);
+    return isNaN(v) ? 0 : v;
+  };
+  const sum = get("test1") + get("test2") + get("test3")
+            + get("ass1")  + get("ass2")  + get("ass3")
+            + get("exam");
+  const calcCell = tr.querySelector('[data-calc="total"]');
+  // compute something meaningful: round the total
+  calcCell.textContent = sum > 0 ? sum : "–";
+}
+
+/* ============================================================
+   7. BUILD CHARACTER / PRACTICAL ROWS
+   ============================================================ */
+function buildSkillRows(containerId, items, dataAttr) {
+  const tbody = document.getElementById(containerId);
+  tbody.innerHTML = "";
+  items.forEach(name => {
+    const tr = document.createElement("tr");
+    tr.dataset.name = name;
+    tr.innerHTML = `
+      <td class="subj-name">${name}</td>
+      <td><input type="number" min="1" max="5" data-field="rating"></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   8. LOAD EXISTING DATA
+   ============================================================ */
+function loadData() {
+  setStatus("⏳ Loading record…", "info");
+
+  db.ref(dataPath).once("value")
+    .then(snap => {
+      const data = snap.val();
+      if (data) {
+        fillForm(data);
+        setStatus("✅ Existing record loaded.", "success");
+      } else {
+        fillForm(blankTemplate());
+        setStatus("📝 New record — fill in the fields and save.", "warning");
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      setStatus("❌ Load error: " + err.message, "error");
+      fillForm(blankTemplate());
+    });
+}
+
+function blankTemplate() {
+  return {
+    student: {
+      name: student,
+      class: cls,
+      term: "FIRST",
+      session: session,
+      house: "",
+      attendance: 0,
+      outOf: 0,
+      numberInClass: 0
+    },
+    subjects: {},
+    characterDevelopment: {},
+    practicalSkills: {},
+    remarks: {
+      teacher: "", house: "", principal: "",
+      nextTerm: "", promotedTo: ""
+    }
+  };
+}
+
+function fillForm(data) {
+  const s = data.student || {};
+  $("f_name").value           = s.name || student;
+  $("f_class").value          = s.class || cls;
+  $("f_term").value           = s.term || "FIRST";
+  $("f_session").value        = s.session || session;
+  $("f_house").value          = s.house || "";
+  $("f_attendance").value     = s.attendance ?? "";
+  $("f_outOf").value          = s.outOf ?? "";
+  $("f_numberInClass").value  = s.numberInClass ?? "";
+
+  // subjects — support both array (Part 3 style) and object keyed by subject key
+  const subjData = data.subjects || {};
+  document.querySelectorAll("#subjectsBody tr").forEach(tr => {
+    const key = tr.dataset.key;
+    let entry = null;
+    if (Array.isArray(subjData)) {
+      entry = subjData.find(x => (x.key || slug(x.name)) === key);
+    } else {
+      entry = subjData[key];
+    }
+    if (entry) {
+      ["test1","test2","test3","ass1","ass2","ass3","exam","pos"].forEach(f => {
+        const inp = tr.querySelector(`input[data-field="${f}"]`);
+        if (inp && entry[f] !== undefined) inp.value = entry[f];
+      });
+      recalcRow(tr);
+    }
+  });
+
+  // character
+  fillSkillSection("characterBody", data.characterDevelopment, "trait");
+  // practical
+  fillSkillSection("practicalBody", data.practicalSkills, "skill");
+
+  // remarks
+  const r = data.remarks || {};
+  $("r_teacher").value   = r.teacher   || r["Teacher Remark"]        || "";
+  $("r_house").value     = r.house     || r["House masters Remark"]  || r["House Master Remark"] || "";
+  $("r_principal").value = r.principal || r["Principal Remark"]      || "";
+  $("r_nextTerm").value  = r.nextTerm  || r["Next Term"]             || "";
+  $("r_promotedTo").value= r.promotedTo|| r["Promoted To"]           || "";
+}
+
+function fillSkillSection(tbodyId, dataObj, nameKey) {
+  if (!dataObj) return;
+  let list = Array.isArray(dataObj) ? dataObj : Object.values(dataObj);
+  document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
+    const name = tr.dataset.name;
+    const found = list.find(x => (x[nameKey] || x.trait || x.skill) === name);
+    if (found) {
+      const inp = tr.querySelector('input[data-field="rating"]');
+      if (inp) inp.value = found.rating ?? "";
+    }
+  });
+}
+
+function slug(str) {
+  return (str || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+}
+
+/* ============================================================
+   9. COLLECT + SAVE
+   ============================================================ */
+function collectData() {
+  const subjectsOut = {};
+  document.querySelectorAll("#subjectsBody tr").forEach(tr => {
+    const key = tr.dataset.key;
+    const entry = {};
+    ["test1","test2","test3","ass1","ass2","ass3","exam","pos"].forEach(f => {
+      const inp = tr.querySelector(`input[data-field="${f}"]`);
+      if (inp) entry[f] = inp.value === "" ? "" : (f === "pos" ? inp.value : Number(inp.value));
+    });
+    subjectsOut[key] = entry;
+  });
+
+  const charOut = {};
+  document.querySelectorAll("#characterBody tr").forEach(tr => {
+    const inp = tr.querySelector('input[data-field="rating"]');
+    charOut[tr.dataset.name] = {
+      trait: tr.dataset.name,
+      rating: inp.value === "" ? "" : Number(inp.value)
+    };
+  });
+
+  const pracOut = {};
+  document.querySelectorAll("#practicalBody tr").forEach(tr => {
+    const inp = tr.querySelector('input[data-field="rating"]');
+    pracOut[tr.dataset.name] = {
+      skill: tr.dataset.name,
+      rating: inp.value === "" ? "" : Number(inp.value)
+    };
+  });
+
+  return {
+    student: {
+      name: $("f_name").value,
+      class: $("f_class").value,
+      term: $("f_term").value,
+      session: $("f_session").value,
+      house: $("f_house").value,
+      attendance: $("f_attendance").value === "" ? "" : Number($("f_attendance").value),
+      outOf: $("f_outOf").value === "" ? "" : Number($("f_outOf").value),
+      numberInClass: $("f_numberInClass").value === "" ? "" : Number($("f_numberInClass").value)
+    },
+    subjects: subjectsOut,
+    characterDevelopment: charOut,
+    practicalSkills: pracOut,
+    remarks: {
+      teacher:   $("r_teacher").value,
+      house:     $("r_house").value,
+      principal: $("r_principal").value,
+      nextTerm:  $("r_nextTerm").value,
+      promotedTo:$("r_promotedTo").value
+    },
+    meta: {
+      updatedAt: new Date().toISOString(),
+      updatedBy: (auth.currentUser && auth.currentUser.email) || "unknown"
+    }
+  };
+}
+
+function save() {
+  setStatus("💾 Saving…", "info");
+  const payload = collectData();
+  db.ref(dataPath).set(payload)
+    .then(() => setStatus("✅ Saved successfully.", "success"))
+    .catch(err => {
+      console.error(err);
+      setStatus("❌ Save failed: " + err.message, "error");
+    });
+}
+
+/* ============================================================
+   10. EVENTS
+   ============================================================ */
+$("saveBtn").addEventListener("click", save);
+$("printBtn").addEventListener("click", () => window.print());
+$("reloadBtn").addEventListener("click", () => { if (confirm("Reload and discard unsaved changes?")) loadData(); });
+$("backBtn").addEventListener("click", () => {
+  const p = new URLSearchParams({ session, class: cls });
+  window.location.href = "dashboard.html?" + p.toString();
+});
+$("logoutBtn").addEventListener("click", async () => {
+  if (!confirm("Log out?")) return;
+  await auth.signOut();
+  sessionStorage.clear();
+  window.location.replace("login.html");
+});
+
+/* ============================================================
+   11. INIT
+   ============================================================ */
+buildSubjectRows();
+buildSkillRows("characterBody", CHARACTER_TRAITS, "trait");
+buildSkillRows("practicalBody", PRACTICAL_SKILLS, "skill");
+loadData();
+</script>
+</body>
+</html>
