@@ -42,6 +42,7 @@
 
   .wrap { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
 
+  /* ---------- TOP BAR ---------- */
   header.topbar {
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px; flex-wrap: wrap; margin-bottom: 18px;
@@ -68,6 +69,7 @@
 
   .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
+  /* ---------- STUDENT PHOTO IN HEADER ---------- */
   .student-photo {
     width: 56px; height: 56px;
     object-fit: cover;
@@ -86,6 +88,7 @@
     white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;
   }
 
+  /* ---------- BUTTONS ---------- */
   .btn {
     padding: 10px 22px; border-radius: 40px; font-weight: 700;
     font-size: 0.85rem; cursor: pointer; transition: 0.1s;
@@ -101,6 +104,7 @@
   .btn-danger:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #3d0a0a; }
   .btn:disabled { opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none; }
 
+  /* ---------- CARD ---------- */
   .card {
     background: rgba(255,255,255,0.96);
     border: 2px solid #b87c44;
@@ -115,6 +119,7 @@
     border-bottom:2px double #d7b893; padding-bottom:8px;
   }
 
+  /* ---------- STUDENT CARD BODY ---------- */
   .student-card-body {
     display: grid;
     grid-template-columns: 130px 1fr;
@@ -144,6 +149,7 @@
     .student-fields { grid-template-columns: 1fr 1fr; width: 100%; }
   }
 
+  /* ---------- FORM ELEMENTS ---------- */
   label { display:block; font-weight:600; font-size:0.78rem; margin:10px 0 4px; color:#5f3d1a; }
   input, select, textarea {
     width:100%; padding:8px 10px; border:2px solid #d7b893;
@@ -157,6 +163,7 @@
   @media (max-width:900px){ .grid-4 { grid-template-columns:repeat(2,1fr); } }
   @media (max-width:640px){ .grid-4 { grid-template-columns:1fr; } }
 
+  /* ---------- TABLES ---------- */
   .table-scroll { overflow-x:auto; }
   table { width:100%; border-collapse:collapse; font-size:0.78rem; }
   table th, table td { border:1px solid #d7b893; padding:4px 5px; text-align:center; }
@@ -177,6 +184,7 @@
   @media (max-width:700px){ .remarks-grid { grid-template-columns:1fr; } }
   textarea { min-height:70px; resize:vertical; }
 
+  /* ---------- FIXED BOTTOM ACTION BAR ---------- */
   .actions-bar {
     position:fixed; bottom:0; left:0; right:0;
     background:rgba(255,255,255,0.97);
@@ -186,6 +194,7 @@
     z-index:100;
   }
 
+  /* ---------- STATUS ---------- */
   .status {
     margin-top:14px; padding:11px 16px; border-radius:8px;
     font-size:0.85rem; font-weight:600; display:none; text-align:center;
@@ -195,6 +204,7 @@
   .status.success { display:block; background:#c8e6c9; color:#1e4a2a; }
   .status.warning { display:block; background:#fff3cd; color:#7a5a0a; }
 
+  /* ---------- SUCCESS MODAL ---------- */
   .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(30, 26, 22, 0.55);
@@ -231,6 +241,7 @@
   }
   .modal-box .modal-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #1a452f; }
 
+  /* ---------- PRINT ---------- */
   @media print {
     body { background:#fff !important; padding:0; }
     body::before { display: none; }
@@ -270,6 +281,7 @@
 
   <div id="status" class="status"></div>
 
+  <!-- STUDENT HEADER -->
   <div class="card">
     <h2>👤 Student Information</h2>
     <div class="student-card-body">
@@ -294,6 +306,7 @@
     </div>
   </div>
 
+  <!-- SUBJECTS -->
   <div class="card">
     <h2>📚 Subject Scores</h2>
     <div class="table-scroll">
@@ -301,11 +314,20 @@
         <thead>
           <tr>
             <th style="text-align:left; padding-left:8px;">Subject</th>
-            <th>TEST1</th><th>TEST2</th><th>TEST3</th>
-            <th>ASS1</th><th>ASS2</th><th>ASS3</th>
-            <th>CASUM</th><th>EXAM</th><th>TOTAL</th>
-            <th>CUMM b/f</th><th>CUMM SCORE</th><th>AVG</th>
-            <th>POS</th><th>GRADE</th>
+            <th>TEST1</th>
+            <th>TEST2</th>
+            <th>TEST3</th>
+            <th>ASS1</th>
+            <th>ASS2</th>
+            <th>ASS3</th>
+            <th>CASUM</th>
+            <th>EXAM</th>
+            <th>TOTAL</th>
+            <th>CUMM b/f</th>
+            <th>CUMM SCORE</th>
+            <th>AVG</th>
+            <th>POS</th>
+            <th>GRADE</th>
           </tr>
         </thead>
         <tbody id="subjectsBody"></tbody>
@@ -313,6 +335,7 @@
     </div>
   </div>
 
+  <!-- CHARACTER -->
   <div class="card">
     <h2>🌟 Character Development</h2>
     <div class="table-scroll">
@@ -325,6 +348,7 @@
     </div>
   </div>
 
+  <!-- PRACTICAL SKILLS -->
   <div class="card">
     <h2>🤸 Practical Skills</h2>
     <div class="table-scroll">
@@ -337,6 +361,7 @@
     </div>
   </div>
 
+  <!-- REMARKS -->
   <div class="card">
     <h2>💬 Remarks</h2>
     <div class="remarks-grid">
@@ -356,6 +381,7 @@
   <button class="btn btn-secondary" id="reloadBtn">🔄 Reload</button>
 </div>
 
+<!-- SUCCESS MODAL -->
 <div class="modal-overlay" id="successModal">
   <div class="modal-box">
     <div class="icon">✓</div>
@@ -518,19 +544,47 @@ const NO_PHOTO_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(
   '</svg>'
 );
 
-function setImageWithFallback(imgEl, src, fallbackSrc) {
+/**
+ * Set an image with a chain of fallbacks.
+ * candidates = array of URLs to try, in order.
+ * If all fail, uses NO_PHOTO_SVG.
+ */
+function setImageWithFallbacks(imgEl, candidates) {
   if (!imgEl) return;
-  imgEl.onerror = null;
-  imgEl.onerror = function () {
-    this.onerror = null;
-    if (fallbackSrc && this.src !== fallbackSrc) {
-      this.src = fallbackSrc;
-    } else {
-      this.src = NO_PHOTO_SVG;
-      this.classList.add("placeholder");
+  const list = (candidates || []).filter(Boolean);
+  if (list.length === 0) list.push(NO_PHOTO_SVG);
+
+  let i = 0;
+  const attempt = () => {
+    if (i >= list.length) {
+      imgEl.onerror = null;
+      imgEl.src = NO_PHOTO_SVG;
+      imgEl.classList.add("placeholder");
+      return;
     }
+    const url = list[i++];
+    imgEl.onerror = () => attempt();
+    imgEl.src = url;
   };
-  imgEl.src = src || fallbackSrc || NO_PHOTO_SVG;
+  attempt();
+}
+
+/**
+ * Build the ordered list of image URLs to try for a student.
+ * Priority:
+ *   1. student.image from Firebase (if set)
+ *   2. img/{studentKey}.png
+ *   3. img/{studentKey}.jpg
+ *   4. img/student_image.png
+ *   5. NO_PHOTO_SVG (handled internally by setImageWithFallbacks)
+ */
+function studentImageCandidates(dbImage) {
+  const list = [];
+  if (dbImage) list.push(dbImage);
+  list.push(`img/${studentKey}.png`);
+  list.push(`img/${studentKey}.jpg`);
+  list.push("img/student_image.png");
+  return list;
 }
 
 /* ============================================================
@@ -675,11 +729,16 @@ function fillForm(data) {
   $("f_numberInClass").value  = s.numberInClass ?? "";
 
   /* ---------- Student images ---------- */
-  const studentImage = (s.image && String(s.image).trim()) ? String(s.image).trim() : "";
-  const fallback     = "img/student_image.png";
+  const dbImage = (s.image && String(s.image).trim()) ? String(s.image).trim() : "";
+  const candidates = studentImageCandidates(dbImage);
 
-  setImageWithFallback($("headerStudentPhoto"), studentImage || fallback, NO_PHOTO_SVG);
-  setImageWithFallback($("bigStudentPhoto"),    studentImage || fallback, NO_PHOTO_SVG);
+  setImageWithFallbacks($("headerStudentPhoto"), candidates);
+  setImageWithFallbacks($("bigStudentPhoto"),    candidates);
+
+  // Save the DB image path on the big photo so it survives saves
+  if ($("bigStudentPhoto")) {
+    $("bigStudentPhoto").dataset.dbImage = dbImage;
+  }
 
   $("headerStudentName").textContent  = s.name || student;
   $("headerStudentClass").textContent = `${cls} · ${session}`;
@@ -764,12 +823,9 @@ function collectData() {
     pracOut[tr.dataset.name] = { skill: tr.dataset.name, rating: inp.value === "" ? "" : Number(inp.value) };
   });
 
-  // Preserve the existing image path if it was loaded from the DB
+  // Preserve the DB image path if it was set
   const bigImg = $("bigStudentPhoto");
-  let existingImage = "";
-  if (bigImg && bigImg.dataset && bigImg.dataset.dbImage) {
-    existingImage = bigImg.dataset.dbImage;
-  }
+  const existingImage = (bigImg && bigImg.dataset && bigImg.dataset.dbImage) ? bigImg.dataset.dbImage : "";
 
   return {
     student: {
