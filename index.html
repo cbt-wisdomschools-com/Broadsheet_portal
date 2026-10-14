@@ -1,300 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-       
-            body {
-          margin: 0;
-          padding: 0;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-          font-family: 'Jost', sans-serif;
-          background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
-          background-image: url("img/computerlab.jpg");
-          background-repeat: no-repeat;
-          background-size: cover;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login · Wisdom Foundation Portal</title>
 
-         .main {
-          width: 405px;
-          height: 450px;
-          background: #eee;
-          overflow: hidden;
-          border-radius: 25px;
-          box-shadow: 5px 20px 50px #000;
-          text-align: center;
-        }
-        .login-container {
-            background-color: rgba(200,200,200,0.4);
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 400px;
-            padding: 40px;
-            text-align: center;
-        }
-       
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-       
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-        }
-       
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-       
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 500;
-        }
-       
-        input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            transition: border 0.3s;
-        }
-       
-        input:focus {
-            border-color: #2575fc;
-            outline: none;
-        }
-       
-        .login-btn {
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 10px;
-        }
-       
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-       
-        .error-message {
-            color: #e74c3c;
-            margin-top: 15px;
-            font-size: 14px;
-            display: none;
-        }
-       
-        .demo-accounts {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            text-align: left;
-        }
-       
-        .demo-accounts h3 {
-            color: #555;
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-       
-        .demo-accounts p {
-            font-size: 14px;
-            color: #777;
-            margin-bottom: 5px;
-        }
-    </style>
+<!-- Firebase compat SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f7efe0 0%, #e8d7ba 100%);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1f1c18;
+  }
+  .login-card {
+    background: white;
+    border: 2px solid #b87c44;
+    border-radius: 14px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 30px rgba(122, 63, 14, 0.18);
+  }
+  h1 {
+    margin: 0 0 6px;
+    font-size: 1.5rem;
+    color: #7a3f0e;
+    text-align: center;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #6f6456;
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin: 14px 0 6px;
+    color: #5f3d1a;
+  }
+  input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #b87c44;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #fdfaf5;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  input:focus {
+    outline: none;
+    border-color: #7a3f0e;
+    background: white;
+  }
+  button {
+    width: 100%;
+    margin-top: 22px;
+    padding: 13px;
+    background: #b55a1a;
+    color: white;
+    border: 2px solid #7d3c0c;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #5f2e0a;
+    transition: 0.1s;
+  }
+  button:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #5f2e0a;
+  }
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .status {
+    margin-top: 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+  }
+  .status.error   { display: block; background: #ffcdd2; color: #8b1a1a; }
+  .status.info    { display: block; background: #bbdefb; color: #0d3b66; }
+  .status.success { display: block; background: #c8e6c9; color: #1e4a2a; }
+  .footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #9a8b78;
+  }
+</style>
 </head>
-<body oncontextmenu="return false">
-  <div class="container-xxxl center">
-    <div>
-      <img src="img/templogo1.png" style="margin-bottom:15px; width: 400px; height: 120px" />
-    </div>
+<body>
 
-  
-    
-    <div class="login-container">
-        <h3><label style="color: red; font-size: 25px;">WISFOS  REPORT PORTAL</label></h3>
-        <p class="subtitle"  style="color: lime; font-size: 15px;">Please sign in to your account</p>
-       
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="username"  style="color: red; font-size: 18px; text-align: center;">Enter Your Username  Here</label>
-                <input type="text" id="username" placeholder="Enter your username" required>
-            </div>
-           
-            <div class="input-group">
-                <label for="password"  style="color: orange; font-size: 18px; text-align: center;">Enter Your Password Here</label>
-                <input type="password" id="password" placeholder="Enter your password" required>
-            </div>
-            <div style="margin-top: 10px;">
-                      <label style="color: lime; font-size: 15px;">
-                        <input type="checkbox" id="altLoginCheck">
-                       Click the checkbox to verify and click on Sign In
-                      </label>
-            </div>
-           
-            <button type="submit" class="login-btn">Sign In</button>
-           
-            <div class="error-message" id="errorMessage">
-                Invalid username or password. Please try again.
-            </div>
-            <label style="color: lime; font-size: 25px;">WISFOS REPORT PORTAL</label>
-        </form>
-       
-    
-    </div>
+<div class="login-card">
+  <h1>🏫 Wisdom Foundation</h1>
+  <div class="subtitle">First Term Records Portal · 2026/2027</div>
 
-    <script>
-        // User data array with username, password, and image file
-     
-        const users = [
-               
-   
-                // ADMIN (optional)
-                { username: "admin", password: "admin", image: "admin.png" }
-            ];
+  <form id="loginForm" autocomplete="off">
+    <label for="email">Email Address</label>
+    <input type="email" id="email" placeholder="wisfos4edu@gmail.com" required>
 
-        // Handle form submission
-       /* document.getElementById('loginForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-           
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('errorMessage');
-           
-            // Check if credentials match any user
-            const matchedUser = users.find(user =>
-                user.username === username && user.password === password
-            );
-           
-            if (matchedUser) {
-                // Store user data in sessionStorage for the instructions page
-                sessionStorage.setItem('loggedInUser', JSON.stringify(matchedUser));
-               
-                // Redirect to instructions page
-                window.location.href = 'instructions1.html';
-            } else {
-                // Show error message
-                errorMessage.style.display = 'block';
-               
-                // Clear password field
-                document.getElementById('password').value = '';
-            }
-        });*/
+    <label for="password">Password</label>
+    <input type="password" id="password" placeholder="••••••••" required>
 
+    <button type="submit" id="loginBtn">Sign In</button>
+  </form>
 
+  <div class="status" id="status"></div>
 
-          // FIRST LOGIN METHOD (loggedInUser)
-            // =============================
-            document.getElementById('loginForm').addEventListener('submit', function(event) {
-              event.preventDefault();
+  <div class="footer">Authorized users only · Wisdom Foundation © 2026</div>
+</div>
 
-              const username = document.getElementById('username').value.trim();
-              const password = document.getElementById('password').value.trim();
-              const errorMessage = document.getElementById('errorMessage');
-              const altCheck = document.getElementById('altLoginCheck');
+<script>
+/* ============================================================
+   1. FIREBASE CONFIG (wisdom-firsterm-records26-27)
+   ============================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBcbySKjFMndLDDYr6XOKPoX0rcUqY5dp4",
+  authDomain:        "wisdom-firsterm-records26-27.firebaseapp.com",
+  databaseURL:       "https://wisdom-firsterm-records26-27-default-rtdb.firebaseio.com",
+  projectId:         "wisdom-firsterm-records26-27",
+  storageBucket:     "wisdom-firsterm-records26-27.firebasestorage.app",
+  messagingSenderId: "476083129496",
+  appId:             "1:476083129496:web:25fcd0a42a1c10bfa7d4ed",
+  measurementId:     "G-0PJ3GJYY80"
+};
 
-              // --- Primary validation ---
-              const matchedUser = users.find(user =>
-                user.username === username && user.password === password
-              );
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-              if (matchedUser) {
-                sessionStorage.setItem('loggedInUser', JSON.stringify(matchedUser));
-                console.log("✅ Primary validation passed");
+/* ============================================================
+   2. HARDCODED CREDENTIALS (must ALSO match)
+   ============================================================ */
+const HARDCODED_EMAIL    = "wisfos4edu@gmail.com";
+const HARDCODED_PASSWORD = "admin@wisfos";
 
-                // --- If checkbox is checked, also run alternate validation ---
-                if (altCheck.checked) {
-                  console.log("🔄 Running alternate validation...");
-                  validateLoginComparison(username, password);
-                } else {
-                  // Go to instructions1.html for main validation only
-                  window.location.href = 'dashboard.html';
-                }
+/* ============================================================
+   3. DOM
+   ============================================================ */
+const form     = document.getElementById("loginForm");
+const emailEl  = document.getElementById("email");
+const passEl   = document.getElementById("password");
+const btn      = document.getElementById("loginBtn");
+const statusEl = document.getElementById("status");
 
-              } else {
-                errorMessage.style.display = 'block';
-                document.getElementById('password').value = '';
-              }
-            });
+function setStatus(msg, type = "info") {
+  statusEl.className = "status " + type;
+  statusEl.textContent = msg;
+}
+function clearStatus() {
+  statusEl.className = "status";
+  statusEl.textContent = "";
+}
 
-            // =============================
-            // SECOND LOGIN METHOD (for comparison)
-            // =============================
-            function validateLoginComparison(username, password) {
-              if (!username || !password) {
-                alert("Please enter both username and password.");
-                return;
-              }
+/* ============================================================
+   4. IF ALREADY LOGGED IN (sessionStorage flag set)
+   ============================================================ */
+if (sessionStorage.getItem("wfs_logged_in") === "true") {
+  window.location.replace("admin_dashboard.html");
+}
 
-              const user = users.find(
-                (u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password
-              );
+/* ============================================================
+   5. LOGIN HANDLER
+   ============================================================ */
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  clearStatus();
 
-              if (user) {
-                sessionStorage.setItem('username', user.username);
-                sessionStorage.setItem('image', user.image);
-                console.log("✅ Alternate validation passed");
-                window.location.href = 'dashboard.html';
-              } else {
-                alert("Invalid username or password in alternate check.");
-              }
-            }
+  const email    = emailEl.value.trim();
+  const password = passEl.value;
 
+  if (!email || !password) {
+    setStatus("Please fill in both fields.", "error");
+    return;
+  }
 
-             // ================== ANTI-CHEAT & LOGOUT ==================
-        document.addEventListener('keydown', function (event) {
-            const key = event.key.toLowerCase();
-            if ((event.ctrlKey && (key === 'p' || key === 's')) && currentSection === 'objectives') {
-                event.preventDefault();
-                alert("Right-click and view source are disabled during examination.");
-                return false;
-            }
-        });
-       
-        document.addEventListener('contextmenu', (event) => {
-            event.preventDefault();
-            alert("Right-click is disabled during examination.");
-        });
-       
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') ||
-                (e.ctrlKey && e.shiftKey && e.key === 'J') || (e.ctrlKey && e.key === 'u')) {
-                e.preventDefault();
-                alert("Developer tools are disabled during examination.");
-            }
-        });
-         document.addEventListener('keydown', function (e) {
-            if (e.key === 's' ) 
-                {
-                e.preventDefault();
-                alert("Developer tools are disabled during sessions here.");
-            }
-        });
+  // ---- CHECK 1: hardcoded match ----
+  if (email !== HARDCODED_EMAIL || password !== HARDCODED_PASSWORD) {
+    setStatus("❌ Invalid email or password.", "error");
+    return;
+  }
 
-    </script>
+  // ---- CHECK 2: Firebase Auth ----
+  btn.disabled = true;
+  btn.textContent = "Signing in…";
+  setStatus("⏳ Verifying credentials…", "info");
+
+  try {
+    await auth.signInWithEmailAndPassword(email, password);
+
+    // Both checks passed
+    sessionStorage.setItem("wfs_logged_in", "true");
+    sessionStorage.setItem("wfs_user_email", email);
+    sessionStorage.setItem("wfs_login_time", new Date().toISOString());
+
+    setStatus("✅ Login successful. Redirecting…", "success");
+    setTimeout(() => window.location.replace("admin_dashboard.html"), 600);
+
+  } catch (err) {
+    console.error("Auth error:", err);
+    let msg = "❌ Firebase authentication failed.";
+    if (err.code === "auth/wrong-password")     msg = "❌ Incorrect password.";
+    if (err.code === "auth/user-not-found")     msg = "❌ No account found for that email.";
+    if (err.code === "auth/invalid-email")      msg = "❌ Invalid email format.";
+    if (err.code === "auth/too-many-requests")  msg = "❌ Too many attempts. Try again later.";
+    if (err.code === "auth/network-request-failed") msg = "❌ Network error. Check your connection.";
+    setStatus(msg, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Sign In";
+  }
+});
+</script>
 </body>
 </html>
