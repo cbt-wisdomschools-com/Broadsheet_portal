@@ -486,7 +486,7 @@
 
 <div class="actions-bar">
   <button class="btn btn-success" id="saveBtn">💾 Save</button>
-  <button class="btn btn-primary" id="printBtn">🖨️ Print</button>
+  <!--<button class="btn btn-primary" id="printBtn">🖨️ Print</button>-->
   <button class="btn btn-secondary" id="reloadBtn">🔄 Reload</button>
 </div>
 
@@ -797,6 +797,7 @@ function fillForm(data) {
   // ---------- Student image ----------
   // Priority: s.image from DB → fallback to img/student_image.png
   const studentImage = s.image && s.image.trim() ? s.image : "img/student_image.png";
+  //const studentImage = s.image && s.image.trim() ? s.image : `img/${studentKey}.png`;
 
   const headerPhoto = $("headerStudentPhoto");
   const bigPhoto    = $("bigStudentPhoto");
