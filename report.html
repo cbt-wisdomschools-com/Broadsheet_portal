@@ -3,129 +3,278 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Report Sheet · Wisdom Foundation Portal</title>
+<title>Dashboard · Wisdom Foundation Portal</title>
 
+<!-- Firebase compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <style>
   * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+
   body {
-    margin: 0;
     min-height: 100vh;
-    background: #f7efe0;
     font-family: 'Segoe UI', Arial, sans-serif;
     color: #1f1c18;
-    padding: 24px 16px 90px;
-  }
-  .wrap { max-width: 1400px; margin: 0 auto; }
+    padding: 30px 20px;
+    position: relative;
+    overflow-x: hidden;
 
-  header.topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 12px; flex-wrap: wrap; margin-bottom: 18px;
+    /* Background image behind everything */
+    background-color: #f7efe0;
+    background-image: url('img/background-logo.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
   }
-  header.topbar h1 { margin: 0; font-size: 1.35rem; color: #7a3f0e; }
-  header.topbar .meta { font-size: 0.8rem; color: #6f6456; }
 
-  .btn {
-    padding: 10px 22px; border-radius: 40px; font-weight: 700;
-    font-size: 0.85rem; cursor: pointer; transition: 0.1s;
-    border: 2px solid; font-family: inherit;
+  /* Soft overlay so the background image doesn't overpower content */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg,
+                rgba(247, 239, 224, 0.88) 0%,
+                rgba(232, 215, 186, 0.88) 100%);
+    z-index: 0;
+    pointer-events: none;
   }
-  .btn-primary  { background:#b55a1a; color:#fff; border-color:#7d3c0c; box-shadow:3px 3px 0 #5f2e0a; }
-  .btn-primary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #5f2e0a; }
-  .btn-secondary{ background:#1e2f3f; color:#fff; border-color:#1a2937; box-shadow:3px 3px 0 #0f1a24; }
-  .btn-secondary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #0f1a24; }
-  .btn-success  { background:#2b6e4e; color:#fff; border-color:#1f5a3e; box-shadow:3px 3px 0 #1a452f; }
-  .btn-success:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #1a452f; }
-  .btn-danger   { background:#8b1a1a; color:#fff; border-color:#5f0f0f; box-shadow:3px 3px 0 #3d0a0a; }
-  .btn-danger:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #3d0a0a; }
-  .btn:disabled { opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none; }
 
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------- HEADER ---------- */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: rgba(255,255,255,0.94);
+    border: 2px solid #b87c44;
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 6px 18px rgba(122, 63, 14, 0.12);
+    backdrop-filter: blur(2px);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 0;
+  }
+  .brand .logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #b87c44;
+    padding: 5px;
+    box-shadow: 0 3px 8px rgba(122, 63, 14, 0.18);
+    flex-shrink: 0;
+  }
+  .brand .titles {
+    min-width: 0;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #7a3f0e;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+  }
+  header .user {
+    font-size: 0.78rem;
+    color: #6f6456;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .seed-btn {
+    padding: 8px 18px;
+    background: #2b6e4e;
+    color: white;
+    border: 2px solid #1f5a3e;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #1a452f;
+    transition: 0.1s;
+    font-family: inherit;
+  }
+  .seed-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #1a452f;
+  }
+  .logout-btn {
+    padding: 8px 18px;
+    background: #8b1a1a;
+    color: white;
+    border: 2px solid #5f0f0f;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 #3d0a0a;
+    transition: 0.1s;
+    font-family: inherit;
+  }
+  .logout-btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #3d0a0a;
+  }
+
+  /* ---------- CARD ---------- */
   .card {
-    background:#fff; border:2px solid #b87c44; border-radius:12px;
-    padding:22px 20px; margin-bottom:18px;
-    box-shadow:0 6px 16px rgba(122,63,14,0.08);
+    background: rgba(255, 255, 255, 0.96);
+    border: 2px solid #b87c44;
+    border-radius: 14px;
+    padding: 28px 26px;
+    box-shadow: 0 10px 28px rgba(122, 63, 14, 0.14);
+    backdrop-filter: blur(2px);
   }
   .card h2 {
-    margin:0 0 14px; font-size:1.05rem; color:#7a3f0e;
-    border-bottom:2px double #d7b893; padding-bottom:8px;
+    margin: 0 0 4px;
+    font-size: 1.15rem;
+    color: #7a3f0e;
+  }
+  .card .hint {
+    font-size: 0.82rem;
+    color: #6f6456;
+    margin-bottom: 22px;
   }
 
   label {
-    display:block; font-weight:600; font-size:0.78rem;
-    margin:10px 0 4px; color:#5f3d1a;
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin: 16px 0 6px;
+    color: #5f3d1a;
   }
-  input, select, textarea {
-    width:100%; padding:8px 10px; border:2px solid #d7b893;
-    border-radius:6px; font-size:0.88rem; background:#fdfaf5;
-    font-family:inherit; transition:border-color 0.15s;
+  select, input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 2px solid #b87c44;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #fdfaf5;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
   }
-  input:focus, select:focus, textarea:focus {
-    outline:none; border-color:#7a3f0e; background:#fff;
+  select:focus, input:focus {
+    outline: none;
+    border-color: #7a3f0e;
+    background: white;
   }
-  input[readonly] { background:#f0e8dc; color:#6f6456; }
-
-  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
-  @media (max-width:900px){ .grid-4 { grid-template-columns:repeat(2,1fr); } }
-  @media (max-width:640px){ .grid-4 { grid-template-columns:1fr; } }
-
-  .table-scroll { overflow-x:auto; }
-  table { width:100%; border-collapse:collapse; font-size:0.78rem; }
-  table th, table td {
-    border:1px solid #d7b893; padding:4px 5px; text-align:center;
-  }
-  table th {
-    background:#f5ede0; color:#5f3d1a; font-weight:700;
-    font-size:0.7rem; white-space:nowrap;
-  }
-  table td.subj-name {
-    text-align:left; font-weight:600; color:#5f3d1a;
-    padding-left:8px; white-space:nowrap; min-width:150px;
-  }
-  table td input {
-    padding:4px 3px; font-size:0.78rem; text-align:center;
-    border-width:1px; border-radius:4px; background:#fff; min-width:48px;
-  }
-  table td.calc {
-    background:#f5ede0; font-weight:700; color:#7a3f0e; font-size:0.78rem;
-  }
-  table td.grade {
-    font-weight:800; color:#7a3f0e; font-size:0.85rem;
+  select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: #f0e8dc;
   }
 
-  .skills-table td.subj-name { width:200px; }
-  .remarks-grid {
-    display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
-  @media (max-width:700px){ .remarks-grid { grid-template-columns:1fr; } }
-  textarea { min-height:70px; resize:vertical; }
+  @media (max-width: 640px) {
+    .row { grid-template-columns: 1fr; }
+  }
 
-  .actions-bar {
-    position:fixed; bottom:0; left:0; right:0;
-    background:rgba(255,255,255,0.97);
-    border-top:2px solid #b87c44; padding:12px 20px;
-    display:flex; gap:10px; justify-content:center;
-    flex-wrap:wrap; box-shadow:0 -4px 12px rgba(0,0,0,0.08);
-    z-index:100;
+  .actions {
+    margin-top: 28px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 30px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.1s;
+    border: 2px solid;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: #b55a1a;
+    color: white;
+    border-color: #7d3c0c;
+    box-shadow: 4px 4px 0 #5f2e0a;
+  }
+  .btn-primary:hover:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #5f2e0a;
+  }
+  .btn-secondary {
+    background: #1e2f3f;
+    color: white;
+    border-color: #1a2937;
+    box-shadow: 3px 3px 0 #0f1a24;
+  }
+  .btn-secondary:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #0f1a24;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
   }
 
   .status {
-    margin-top:14px; padding:11px 16px; border-radius:8px;
-    font-size:0.85rem; font-weight:600; display:none; text-align:center;
+    margin-top: 18px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: none;
   }
-  .status.info    { display:block; background:#bbdefb; color:#0d3b66; }
-  .status.error   { display:block; background:#ffcdd2; color:#8b1a1a; }
-  .status.success { display:block; background:#c8e6c9; color:#1e4a2a; }
-  .status.warning { display:block; background:#fff3cd; color:#7a5a0a; }
+  .status.info    { display: block; background: #bbdefb; color: #0d3b66; }
+  .status.error   { display: block; background: #ffcdd2; color: #8b1a1a; }
+  .status.success { display: block; background: #c8e6c9; color: #1e4a2a; }
 
-  @media print {
-    body { background:#fff; padding:0; }
-    header.topbar, .actions-bar, .status { display:none !important; }
-    .card { border:1px solid #999; box-shadow:none; page-break-inside:avoid; }
-    input, select, textarea { border:none; background:transparent; }
-    .table-scroll { overflow:visible; }
+  .preview {
+    margin-top: 18px;
+    padding: 12px 16px;
+    background: #1e1a16;
+    color: #e8e0d6;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    word-break: break-all;
+    display: none;
+  }
+  .preview.show { display: block; }
+
+  @media (max-width: 600px) {
+    .brand .logo { width: 52px; height: 52px; }
+    header h1 { font-size: 1.15rem; }
+    header { padding: 12px 14px; }
   }
 </style>
 </head>
@@ -133,113 +282,66 @@
 
 <div class="wrap">
 
-  <header class="topbar">
-    <div>
-      <h1>📄 Report Sheet</h1>
-      <div class="meta" id="headerMeta">Loading…</div>
+  <header>
+    <div class="brand">
+      <img class="logo" src="img/logo.png" alt="Wisdom Foundation Logo"
+           onerror="this.style.display='none';">
+      <div class="titles">
+        <h1>🏫 Wisdom Foundation Dashboard</h1>
+        <div class="user" id="userInfo">—</div>
+      </div>
     </div>
-    <div style="display:flex; gap:8px;">
-      <button class="btn btn-secondary" id="backBtn">← Back</button>
-      <button class="btn btn-danger" id="logoutBtn">Logout</button>
+
+    <div class="header-actions">
+      <button class="seed-btn" id="ieBtn" style="background:#0d6b7a; border-color:#0a4f5a; box-shadow:3px 3px 0 #06333a;">📥📤 Import/Export</button>
+      <button class="seed-btn" id="seedBtn">🌱 Seed</button>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+      <button class="seed-btn" id="exportJsonBtn" style="background:#6f4f2a; border-color:#5f3d1a; box-shadow:3px 3px 0 #4a3316;">📦 Export JSON</button>
     </div>
   </header>
 
-  <div id="status" class="status"></div>
-
-  <!-- STUDENT HEADER -->
   <div class="card">
-    <h2>👤 Student Information</h2>
-    <div class="grid-4">
-      <div><label>Student Name</label><input id="f_name" readonly></div>
-      <div><label>Class</label><input id="f_class" readonly></div>
-      <div><label>Term</label>
-        <select id="f_term">
-          <option value="FIRST">FIRST</option>
-          <option value="SECOND">SECOND</option>
-          <option value="THIRD">THIRD</option>
+    <h2>📄 Report Sheet Lookup</h2>
+    <div class="hint">Select a session, class, and student to open or create their report sheet.</div>
+
+    <label for="sessionSelect">Academic Session</label>
+    <select id="sessionSelect">
+      <option value="">— Select session —</option>
+      <option value="2026-2027">2026 – 2027</option>
+      <option value="2027-2028">2027 – 2028</option>
+      <option value="2028-2029">2028 – 2029</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label for="classSelect">Class</label>
+        <select id="classSelect" disabled>
+          <option value="">— Select class —</option>
+          <option value="JSS1">JSS 1</option>
+          <option value="JSS2">JSS 2</option>
+          <option value="JSS3">JSS 3</option>
+          <option value="SS1">SS 1</option>
+          <option value="SS2">SS 2</option>
+          <option value="SS3">SS 3</option>
         </select>
       </div>
-      <div><label>Session</label><input id="f_session" readonly></div>
-      <div><label>House</label><input id="f_house" placeholder="e.g. Gold"></div>
-      <div><label>Attendance</label><input id="f_attendance" type="number" min="0"></div>
-      <div><label>Out of</label><input id="f_outOf" type="number" min="0"></div>
-      <div><label>Number in Class</label><input id="f_numberInClass" type="number" min="0"></div>
+      <div>
+        <label for="studentSelect">Student Name</label>
+        <select id="studentSelect" disabled>
+          <option value="">— Select student —</option>
+        </select>
+      </div>
     </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="nextBtn" disabled>Next →</button>
+      <button class="btn btn-secondary" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div class="preview" id="preview"></div>
   </div>
 
-  <!-- SUBJECTS -->
-  <div class="card">
-    <h2>📚 Subject Scores</h2>
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th style="text-align:left; padding-left:8px;">Subject</th>
-            <th>TEST1</th>
-            <th>TEST2</th>
-            <th>TEST3</th>
-            <th>ASS1</th>
-            <th>ASS2</th>
-            <th>ASS3</th>
-            <th>CASUM</th>
-            <th>EXAM</th>
-            <th>TOTAL</th>
-            <th>CUMM b/f</th>
-            <th>CUMM SCORE</th>
-            <th>AVG</th>
-            <th>POS</th>
-            <th>GRADE</th>
-          </tr>
-        </thead>
-        <tbody id="subjectsBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- CHARACTER -->
-  <div class="card">
-    <h2>🌟 Character Development</h2>
-    <div class="table-scroll">
-      <table class="skills-table">
-        <thead>
-          <tr><th style="text-align:left; padding-left:8px;">Trait</th><th>Rating (1–5)</th></tr>
-        </thead>
-        <tbody id="characterBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- PRACTICAL SKILLS -->
-  <div class="card">
-    <h2>🤸 Practical Skills</h2>
-    <div class="table-scroll">
-      <table class="skills-table">
-        <thead>
-          <tr><th style="text-align:left; padding-left:8px;">Skill</th><th>Rating (1–5)</th></tr>
-        </thead>
-        <tbody id="practicalBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- REMARKS -->
-  <div class="card">
-    <h2>💬 Remarks</h2>
-    <div class="remarks-grid">
-      <div><label>Teacher Remark</label><textarea id="r_teacher"></textarea></div>
-      <div><label>House Master Remark</label><textarea id="r_house"></textarea></div>
-      <div><label>Principal Remark</label><textarea id="r_principal"></textarea></div>
-      <div><label>Next Term Begins</label><textarea id="r_nextTerm"></textarea></div>
-      <div style="grid-column: 1 / -1;"><label>Promoted To</label><input id="r_promotedTo"></div>
-    </div>
-  </div>
-
-</div>
-
-<div class="actions-bar">
-  <button class="btn btn-success" id="saveBtn">💾 Save</button>
-  <button class="btn btn-primary" id="printBtn">🖨️ Print</button>
-  <button class="btn btn-secondary" id="reloadBtn">🔄 Reload</button>
 </div>
 
 <script>
@@ -256,9 +358,9 @@ const firebaseConfig = {
   appId:             "1:476083129496:web:25fcd0a42a1c10bfa7d4ed",
   measurementId:     "G-0PJ3GJYY80"
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db   = firebase.database();
 
 /* ============================================================
    2. SESSION GUARD
@@ -266,396 +368,256 @@ const db   = firebase.database();
 if (sessionStorage.getItem("wfs_logged_in") !== "true") {
   window.location.replace("login.html");
 }
+
 auth.onAuthStateChanged((user) => {
   if (!user) {
     sessionStorage.removeItem("wfs_logged_in");
     window.location.replace("login.html");
+  } else {
+    document.getElementById("userInfo").textContent = "Signed in as " + user.email;
   }
 });
 
 /* ============================================================
-   3. SUBJECT LISTS
+   3. USERS ARRAY — grouped by class
    ============================================================ */
-const JUNIOR_SUBJECTS = [
-  { key: "mathematics",           label: "Mathematics" },
-  { key: "english_language",      label: "English Language" },
-  { key: "english_literature",    label: "Literature in English" },
-  { key: "intermediate_science",  label: "Intermediate Science" },
-  { key: "digital_technology",    label: "Computer Studies" },
-  { key: "food_and_nutrition",    label: "Food And Nutrition" },
-  { key: "livestock_farming",     label: "Livestock Farming" },
-  { key: "social_Studies",        label: "Social | Citizenship Studies" },
-  { key: "business_studies",      label: "Business Studies" },
-  { key: "cultural_and_creative_art", label: "Cultural & Creative Art" },
-  { key: "yoruba",                label: "Yoruba" },
-  { key: "phe",                   label: "Physical Health Education" },
-  { key: "crs",                   label: "Christian Religious Studies" },
-  { key: "french",                label: "French" },
-  { key: "music",                 label: "Music" },
-  { key: "phonetics",             label: "Phonetics | Diction" },
-  { key: "nigerian_history",      label: "History" },
-  { key: "agricultural_science",  label: "Agricultural Science" },
-  { key: "fine_art",              label: "Fine Art" },
-  { key: "ekiti_values",          label: "Ekiti Values" }
-];
-
-const SENIOR_SUBJECTS = [
-  { key: "mathematics",            label: "Mathematics" },
-  { key: "english_language",       label: "English Language" },
-  { key: "chemistry",              label: "Chemistry" },
-  { key: "biology",                label: "Biology" },
-  { key: "yoruba",                 label: "Yoruba" },
-  { key: "citizenship_education",  label: "Citizenship | Heritage Studies" },
-  { key: "livestock_farming",      label: "Livestock Farming" },
-  { key: "agricultural_science",   label: "Agricultural Science" },
-  { key: "literature_in_english",  label: "Literature in English" },
-  { key: "crs",                    label: "Christian Religious Studies" },
-  { key: "physics",                label: "Physics" },
-  { key: "digital_technology",     label: "Digital Technology" },
-  { key: "economics",              label: "Economics" },
-  { key: "geography",              label: "Geography" },
-  { key: "account",                label: "Financial Accounting" },
-  { key: "government",             label: "Government" },
-  { key: "commerce",               label: "Commerce" },
-  { key: "marketing",              label: "Marketing" },
-  { key: "fine_art",               label: "Fine Art" },
-  { key: "further_mathematics",    label: "Further Mathematics" },
-  { key: "history",                label: "Nigerian History" },
-  { key: "phonetics",              label: "Phonetics" }
-];
-
-const CHARACTER_TRAITS = ["Punctuality","Attentiveness","Neatness","Honesty","Relationship"];
-const PRACTICAL_SKILLS = ["Sport","Club","Fluency","Handwriting"];
+const USERS = {
+  "JSS1": [
+    "Ademola Olamide K",
+    "Ige Promise J",
+    "Ojuoluwa David A",
+    "Tayo-Amos Samuel I",
+    "Adebayo Aishat S",
+    "Ajibade Fadesola Ike",
+    "Ayoola Veronica Inis",
+    "Chukwuemeka Tifeany S.",
+    "Ifeanyi Peace C",
+    "Ogunmiloyo Anjola J"
+  ],
+  "JSS2": [
+    "Shehu Ahmeed Marvelous",
+    "Fasuan Obaloluwa Adebowale",
+    "ojo pemisire adesewa"
+  ],
+  "JSS3": [
+    "George Emmanuel",
+    "Adejemilua Peter",
+    "Oke Ayobami",
+    "Chukwuemeka Emmanuel",
+    "Olorungbohunmi Ayo",
+    "Dada Tiwalade",
+    "Nafiu Habibat",
+    "Fasuan Adetutu",
+    "Salami Semilore",
+    "Shinaola Treasure",
+    "Adebisi Azeem S",
+    "Ajibade Adeola"
+  ],
+  "SS1": [
+    "Abdulateef Qudus Ademola",
+    "Isaac Richard Feranmi",
+    "Ogunmiloyo Inioluwa David",
+    "Oladiti David Henry",
+    "Adebayo Khadijat Iyanu",
+    "Akindele Dunsi Faith",
+    "Olusola Divine Oluwaseun",
+    "Umar Fatima Lamine",
+    "Ajisola Destiny K",
+    "Oladapo Fiyinfoluwa B",
+    "Salawudeen Abdulquadri B"
+  ],
+  "SS2": [
+    "Ajisafe Ezekeil",
+    "Omolade Darasimi",
+    "Owolabi Timilehin Testimony",
+    "Umar Aliyu",
+    "Oke Inumidun",
+    "Lawal Desmond",
+    "Adefisayo Abdul Akorede"
+  ],
+  "SS3": [
+    "Aborisadede Timilehin Ayomide",
+    "Adebisi Mahfouz Adewole",
+    "Adekunle Samuel Ayomikun",
+    "Adeyemi Obasanjo Toheeb",
+    "Ikpengwa Emmanuel",
+    "Olofintoye Victor Omobarewa",
+    "Olumide Erioluwa Emmanuel",
+    "Oluwadare Praise Ayowamide",
+    "Gabriel Victor Kachisieme",
+    "Adeola Precious Eniola",
+    "Afolalu Faith Toluwanimi",
+    "Olorunmaiye Nifemi Faith",
+    "Ariyo Elizabeth Celestina"
+  ]
+};
 
 /* ============================================================
-   4. URL PARAMS
+   4. DOM REFS
    ============================================================ */
-const params  = new URLSearchParams(window.location.search);
-const session = params.get("session");
-const cls     = params.get("class");
-const student = params.get("student");
-
-if (!session || !cls || !student) {
-  document.body.innerHTML = "<div style='padding:40px; font-family:sans-serif;'>" +
-    "<h2>⚠️ Missing parameters</h2>" +
-    "<p>URL must include <code>session</code>, <code>class</code>, and <code>student</code>.</p>" +
-    "<a href='dashboard.html'>← Back to dashboard</a></div>";
-  throw new Error("Missing URL params");
-}
-
-const studentKey = student.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^\w_]/g, "");
-const dataPath   = `/reports/${session}/${cls}/${studentKey}`;
-const isSenior   = cls.startsWith("SS");
-const subjects   = isSenior ? SENIOR_SUBJECTS : JUNIOR_SUBJECTS;
-
-document.getElementById("headerMeta").textContent =
-  `${cls} · ${session} · ${student}`;
-
-/* ============================================================
-   5. DOM REFS + STATUS
-   ============================================================ */
-const $ = (id) => document.getElementById(id);
-const statusEl = $("status");
+const sessionSelect = document.getElementById("sessionSelect");
+const classSelect   = document.getElementById("classSelect");
+const studentSelect = document.getElementById("studentSelect");
+const nextBtn       = document.getElementById("nextBtn");
+const resetBtn      = document.getElementById("resetBtn");
+const logoutBtn     = document.getElementById("logoutBtn");
+const seedBtn       = document.getElementById("seedBtn");
+const statusEl      = document.getElementById("status");
+const previewEl     = document.getElementById("preview");
+const ieBtn         = document.getElementById("ieBtn");
 
 function setStatus(msg, type = "info") {
   statusEl.className = "status " + type;
   statusEl.textContent = msg;
-  if (type === "success") {
-    setTimeout(() => { statusEl.className = "status"; }, 4000);
+}
+function clearStatus() {
+  statusEl.className = "status";
+  statusEl.textContent = "";
+}
+function updatePreview() {
+  const s = sessionSelect.value;
+  const c = classSelect.value;
+  const n = studentSelect.value;
+  if (s && c && n) {
+    const params = new URLSearchParams({ session: s, class: c, student: n });
+    previewEl.textContent = "➡️ report.html?" + params.toString();
+    previewEl.classList.add("show");
+  } else {
+    previewEl.classList.remove("show");
   }
 }
-
-/* ============================================================
-   6. BUILD SUBJECT ROWS
-   ============================================================ */
-const INPUT_FIELDS  = ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf","pos"];
-const CALC_FIELDS   = ["casum","total","cummScore","avg","grade"];
-
-function buildSubjectRows() {
-  const tbody = $("subjectsBody");
-  tbody.innerHTML = "";
-  subjects.forEach(subj => {
-    const tr = document.createElement("tr");
-    tr.dataset.key = subj.key;
-    tr.innerHTML = `
-      <td class="subj-name">${subj.label}</td>
-      <td><input type="number" data-field="test1" min="0" max="100"></td>
-      <td><input type="number" data-field="test2" min="0" max="100"></td>
-      <td><input type="number" data-field="test3" min="0" max="100"></td>
-      <td><input type="number" data-field="ass1"  min="0" max="100"></td>
-      <td><input type="number" data-field="ass2"  min="0" max="100"></td>
-      <td><input type="number" data-field="ass3"  min="0" max="100"></td>
-      <td class="calc" data-calc="casum">–</td>
-      <td><input type="number" data-field="exam"   min="0" max="100"></td>
-      <td class="calc" data-calc="total">–</td>
-      <td><input type="number" data-field="cummBf" min="0" max="100"></td>
-      <td class="calc" data-calc="cummScore">–</td>
-      <td class="calc" data-calc="avg">–</td>
-      <td><input type="text"   data-field="pos" placeholder="1st"></td>
-      <td class="grade" data-calc="grade">–</td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  tbody.querySelectorAll("input").forEach(inp => {
-    inp.addEventListener("input", () => recalcRow(inp.closest("tr")));
-  });
-}
-
-function num(tr, field) {
-  const el = tr.querySelector(`input[data-field="${field}"]`);
-  if (!el) return 0;
-  const v = parseFloat(el.value);
-  return isNaN(v) ? 0 : v;
-}
-function setCalc(tr, key, value) {
-  const cell = tr.querySelector(`[data-calc="${key}"]`);
-  if (cell) cell.textContent = value;
-}
-
-function recalcRow(tr) {
-  const t1 = num(tr, "test1");
-  const t2 = num(tr, "test2");
-  const t3 = num(tr, "test3");
-  const a1 = num(tr, "ass1");
-  const a2 = num(tr, "ass2");
-  const a3 = num(tr, "ass3");
-  const exam = num(tr, "exam");
-  const cummBf = num(tr, "cummBf");
-
-  const sum6   = t1 + t2 + t3 + a1 + a2 + a3;
-  const casum  = sum6 / 6;
-  const total  = casum + (exam / 2);
-  const cummScore = (cummBf + total) / 2;
-  const avg    = cummScore;
-
-  let grade = "–";
-  if (avg >= 75) grade = "A";
-  else if (avg >= 65) grade = "B";
-  else if (avg >= 50) grade = "C";
-  else if (avg >= 40) grade = "D";
-  else if (avg > 0)   grade = "F";
-
-  const hasAny = sum6 > 0 || exam > 0 || cummBf > 0;
-  setCalc(tr, "casum",     hasAny ? casum.toFixed(2)     : "–");
-  setCalc(tr, "total",     hasAny ? total.toFixed(2)     : "–");
-  setCalc(tr, "cummScore", hasAny ? cummScore.toFixed(2) : "–");
-  setCalc(tr, "avg",       hasAny ? avg.toFixed(2)       : "–");
-  setCalc(tr, "grade",     hasAny ? grade                : "–");
+function checkReady() {
+  const ok = sessionSelect.value && classSelect.value && studentSelect.value;
+  nextBtn.disabled = !ok;
+  updatePreview();
 }
 
 /* ============================================================
-   7. SKILL ROWS
+   5. DROPDOWN LOGIC
    ============================================================ */
-function buildSkillRows(containerId, items) {
-  const tbody = document.getElementById(containerId);
-  tbody.innerHTML = "";
-  items.forEach(name => {
-    const tr = document.createElement("tr");
-    tr.dataset.name = name;
-    tr.innerHTML = `
-      <td class="subj-name">${name}</td>
-      <td><input type="number" min="1" max="5" data-field="rating"></td>
-    `;
-    tbody.appendChild(tr);
+sessionSelect.addEventListener("change", () => {
+  clearStatus();
+  if (sessionSelect.value) {
+    classSelect.disabled = false;
+  } else {
+    classSelect.disabled = true;
+  }
+  classSelect.value = "";
+  studentSelect.innerHTML = '<option value="">— Select student —</option>';
+  studentSelect.disabled = true;
+  checkReady();
+});
+
+classSelect.addEventListener("change", () => {
+  clearStatus();
+  const cls = classSelect.value;
+  studentSelect.innerHTML = '<option value="">— Select student —</option>';
+
+  if (!cls) {
+    studentSelect.disabled = true;
+    checkReady();
+    return;
+  }
+
+  const list = USERS[cls] || [];
+  if (list.length === 0) {
+    setStatus("⚠️ No students found for " + cls, "error");
+    studentSelect.disabled = true;
+    checkReady();
+    return;
+  }
+
+  list.forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    studentSelect.appendChild(opt);
   });
-}
+  studentSelect.disabled = false;
+  checkReady();
+});
+
+studentSelect.addEventListener("change", checkReady);
 
 /* ============================================================
-   8. LOAD
+   6. NEXT BUTTON → redirect to report.html
    ============================================================ */
-function loadData() {
-  setStatus("⏳ Loading record…", "info");
+nextBtn.addEventListener("click", () => {
+  const session = sessionSelect.value;
+  const cls     = classSelect.value;
+  const student = studentSelect.value;
 
-  db.ref(dataPath).once("value")
-    .then(snap => {
-      const data = snap.val();
-      if (data) {
-        fillForm(data);
-        setStatus("✅ Existing record loaded.", "success");
-      } else {
-        fillForm(blankTemplate());
-        setStatus("📝 New record — fill in the fields and save.", "warning");
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      setStatus("❌ Load error: " + err.message, "error");
-      fillForm(blankTemplate());
-    });
-}
+  if (!session || !cls || !student) {
+    setStatus("⚠️ Please complete all selections.", "error");
+    return;
+  }
 
-function blankTemplate() {
-  return {
-    student: {
-      name: student, class: cls, term: "FIRST", session: session,
-      house: "", attendance: 0, outOf: 0, numberInClass: 0
-    },
-    subjects: {},
-    characterDevelopment: {},
-    practicalSkills: {},
-    remarks: { teacher:"", house:"", principal:"", nextTerm:"", promotedTo:"" }
-  };
-}
-
-function fillForm(data) {
-  const s = data.student || {};
-  $("f_name").value           = s.name || student;
-  $("f_class").value          = s.class || cls;
-  $("f_term").value           = s.term || "FIRST";
-  $("f_session").value        = s.session || session;
-  $("f_house").value          = s.house || "";
-  $("f_attendance").value     = s.attendance ?? "";
-  $("f_outOf").value          = s.outOf ?? "";
-  $("f_numberInClass").value  = s.numberInClass ?? "";
-
-  const subjData = data.subjects || {};
-  document.querySelectorAll("#subjectsBody tr").forEach(tr => {
-    const key = tr.dataset.key;
-    let entry = null;
-    if (Array.isArray(subjData)) {
-      entry = subjData.find(x => (x.key || slug(x.name)) === key);
-    } else {
-      entry = subjData[key];
-    }
-    if (entry) {
-      INPUT_FIELDS.forEach(f => {
-        const inp = tr.querySelector(`input[data-field="${f}"]`);
-        if (inp && entry[f] !== undefined && entry[f] !== "") inp.value = entry[f];
-      });
-    }
-    recalcRow(tr);
+  const params = new URLSearchParams({
+    session: session,
+    class: cls,
+    student: student
   });
 
-  fillSkillSection("characterBody", data.characterDevelopment, "trait");
-  fillSkillSection("practicalBody", data.practicalSkills, "skill");
-
-  const r = data.remarks || {};
-  $("r_teacher").value   = r.teacher   || r["Teacher Remark"]        || "";
-  $("r_house").value     = r.house     || r["House masters Remark"]  || r["House Master Remark"] || "";
-  $("r_principal").value = r.principal || r["Principal Remark"]      || "";
-  $("r_nextTerm").value  = r.nextTerm  || r["Next Term"]             || "";
-  $("r_promotedTo").value= r.promotedTo|| r["Promoted To"]           || "";
-}
-
-function fillSkillSection(tbodyId, dataObj) {
-  if (!dataObj) return;
-  let list = Array.isArray(dataObj) ? dataObj : Object.values(dataObj);
-  document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
-    const name = tr.dataset.name;
-    const found = list.find(x => (x.trait || x.skill) === name);
-    if (found) {
-      const inp = tr.querySelector('input[data-field="rating"]');
-      if (inp) inp.value = found.rating ?? "";
-    }
-  });
-}
-
-function slug(str) {
-  return (str || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
-}
+  setStatus("✅ Opening report sheet…", "success");
+  setTimeout(() => {
+    window.location.href = "report.html?" + params.toString();
+  }, 400);
+});
 
 /* ============================================================
-   9. SAVE
+   7. SEED BUTTON → redirect to seed.html
    ============================================================ */
-function collectData() {
-  const subjectsOut = {};
-  document.querySelectorAll("#subjectsBody tr").forEach(tr => {
-    const key = tr.dataset.key;
-    const entry = {};
-    ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf"].forEach(f => {
-      const inp = tr.querySelector(`input[data-field="${f}"]`);
-      entry[f] = (inp && inp.value !== "") ? Number(inp.value) : "";
-    });
-    const pos = tr.querySelector('input[data-field="pos"]');
-    entry.pos = pos ? pos.value : "";
-
-    // also snapshot the calculated fields (helpful for the future seed + auditing)
-    entry.casum     = tr.querySelector('[data-calc="casum"]').textContent;
-    entry.total     = tr.querySelector('[data-calc="total"]').textContent;
-    entry.cummScore = tr.querySelector('[data-calc="cummScore"]').textContent;
-    entry.avg       = tr.querySelector('[data-calc="avg"]').textContent;
-    entry.grade     = tr.querySelector('[data-calc="grade"]').textContent;
-
-    subjectsOut[key] = entry;
-  });
-
-  const charOut = {};
-  document.querySelectorAll("#characterBody tr").forEach(tr => {
-    const inp = tr.querySelector('input[data-field="rating"]');
-    charOut[tr.dataset.name] = {
-      trait: tr.dataset.name,
-      rating: inp.value === "" ? "" : Number(inp.value)
-    };
-  });
-
-  const pracOut = {};
-  document.querySelectorAll("#practicalBody tr").forEach(tr => {
-    const inp = tr.querySelector('input[data-field="rating"]');
-    pracOut[tr.dataset.name] = {
-      skill: tr.dataset.name,
-      rating: inp.value === "" ? "" : Number(inp.value)
-    };
-  });
-
-  return {
-    student: {
-      name: $("f_name").value, class: $("f_class").value,
-      term: $("f_term").value, session: $("f_session").value,
-      house: $("f_house").value,
-      attendance: $("f_attendance").value === "" ? "" : Number($("f_attendance").value),
-      outOf: $("f_outOf").value === "" ? "" : Number($("f_outOf").value),
-      numberInClass: $("f_numberInClass").value === "" ? "" : Number($("f_numberInClass").value)
-    },
-    subjects: subjectsOut,
-    characterDevelopment: charOut,
-    practicalSkills: pracOut,
-    remarks: {
-      teacher: $("r_teacher").value,
-      house: $("r_house").value,
-      principal: $("r_principal").value,
-      nextTerm: $("r_nextTerm").value,
-      promotedTo: $("r_promotedTo").value
-    },
-    meta: {
-      updatedAt: new Date().toISOString(),
-      updatedBy: (auth.currentUser && auth.currentUser.email) || "unknown"
-    }
-  };
-}
-
-function save() {
-  setStatus("💾 Saving…", "info");
-  const payload = collectData();
-  db.ref(dataPath).set(payload)
-    .then(() => setStatus("✅ Saved successfully.", "success"))
-    .catch(err => {
-      console.error(err);
-      setStatus("❌ Save failed: " + err.message, "error");
-    });
-}
+seedBtn.addEventListener("click", () => {
+  window.location.href = "seed.html";
+});
 
 /* ============================================================
-   10. EVENTS
+   8. RESET
    ============================================================ */
-$("saveBtn").addEventListener("click", save);
-$("printBtn").addEventListener("click", () => window.print());
-$("reloadBtn").addEventListener("click", () => { if (confirm("Reload and discard unsaved changes?")) loadData(); });
-$("backBtn").addEventListener("click", () => { window.location.href = "dashboard.html"; });
-$("logoutBtn").addEventListener("click", async () => {
-  if (!confirm("Log out?")) return;
-  await auth.signOut();
-  sessionStorage.clear();
+resetBtn.addEventListener("click", () => {
+  sessionSelect.value = "";
+  classSelect.value = "";
+  classSelect.disabled = true;
+  studentSelect.innerHTML = '<option value="">— Select student —</option>';
+  studentSelect.disabled = true;
+  clearStatus();
+  checkReady();
+});
+
+/* ============================================================
+   9. IMPORT EXPORT BUTTON
+   ============================================================ */
+ieBtn.addEventListener("click", () => {
+  window.location.href = "import-export.html";
+});
+
+/* ============================================================
+   10. LOGOUT
+   ============================================================ */
+logoutBtn.addEventListener("click", async () => {
+  if (!confirm("Log out of the portal?")) return;
+  try {
+    await auth.signOut();
+  } catch (e) {
+    console.warn("Sign-out error:", e);
+  }
+  sessionStorage.removeItem("wfs_logged_in");
+  sessionStorage.removeItem("wfs_user_email");
+  sessionStorage.removeItem("wfs_login_time");
   window.location.replace("login.html");
 });
 
 /* ============================================================
-   11. INIT
+   11. EXPORT TO JSON
    ============================================================ */
-buildSubjectRows();
-buildSkillRows("characterBody", CHARACTER_TRAITS);
-buildSkillRows("practicalBody", PRACTICAL_SKILLS);
-loadData();
+document.getElementById("exportJsonBtn").addEventListener("click", () => {
+  window.location.href = "export-json.html";
+});
+
+/* ============================================================
+   12. INIT
+   ============================================================ */
+checkReady();
 </script>
 </body>
 </html>
