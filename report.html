@@ -22,7 +22,6 @@
     position: relative;
     overflow-x: hidden;
 
-    /* Background image */
     background-color: #f7efe0;
     background-image: url('img/background-logo.png');
     background-size: cover;
@@ -31,7 +30,6 @@
     background-attachment: fixed;
   }
 
-  /* Soft overlay so the background doesn't overpower content */
   body::before {
     content: "";
     position: fixed;
@@ -61,6 +59,7 @@
     box-shadow: 0 6px 18px rgba(122, 63, 14, 0.12);
     backdrop-filter: blur(2px);
   }
+
   .brand {
     display: flex; align-items: center; gap: 14px;
     flex: 1; min-width: 0;
@@ -83,10 +82,46 @@
     font-size: 0.78rem; color: #6f6456; margin-top: 2px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
+
   .header-actions {
     display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
   }
 
+  /* ---------- STUDENT PHOTO IN HEADER (right side) ---------- */
+  .student-photo {
+    width: 56px; height: 56px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #7a3f0e;
+    padding: 2px;
+    box-shadow: 0 3px 8px rgba(122, 63, 14, 0.22);
+    flex-shrink: 0;
+  }
+  .student-photo-wrap {
+    display: flex; align-items: center; gap: 10px;
+    flex-shrink: 0;
+  }
+  .student-photo-wrap .student-label {
+    text-align: right;
+    line-height: 1.15;
+    font-size: 0.72rem;
+    color: #6f6456;
+  }
+  .student-photo-wrap .student-label strong {
+    display: block;
+    color: #7a3f0e;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------- BUTTONS ---------- */
   .btn {
     padding: 10px 22px; border-radius: 40px; font-weight: 700;
     font-size: 0.85rem; cursor: pointer; transition: 0.1s;
@@ -115,6 +150,47 @@
   .card h2 {
     margin:0 0 14px; font-size:1.05rem; color:#7a3f0e;
     border-bottom:2px double #d7b893; padding-bottom:8px;
+  }
+
+  /* ---------- STUDENT INFO CARD (photo + fields) ---------- */
+  .student-card-body {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .student-photo-large {
+    width: 130px; height: 150px;
+    object-fit: cover;
+    border: 2px solid #b87c44;
+    border-radius: 8px;
+    background: #fdfaf5;
+    box-shadow: 0 4px 12px rgba(122,63,14,0.15);
+  }
+  .student-photo-large-placeholder {
+    width: 130px; height: 150px;
+    border: 2px dashed #b87c44;
+    border-radius: 8px;
+    background: #f5ede0;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #8b7d68;
+    padding: 8px;
+    font-weight: 600;
+  }
+  .student-fields {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 900px) {
+    .student-fields { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .student-card-body { grid-template-columns: 1fr; justify-items: center; }
+    .student-photo-large, .student-photo-large-placeholder { width: 110px; height: 130px; }
+    .student-fields { grid-template-columns: 1fr 1fr; width: 100%; }
   }
 
   label {
@@ -273,6 +349,7 @@
     .card { border:1px solid #999; box-shadow:none; page-break-inside:avoid; background: #fff; }
     input, select, textarea { border:none; background:transparent; }
     .table-scroll { overflow:visible; }
+    .student-photo-large { border: 1px solid #999; }
   }
 </style>
 </head>
@@ -282,6 +359,7 @@
 
   <header class="topbar">
     <div class="brand">
+      <!-- School logo (left) -->
       <img class="logo" src="img/logo.png" alt="Wisdom Foundation Logo"
            onerror="this.style.display='none';">
       <div>
@@ -289,7 +367,18 @@
         <div class="meta" id="headerMeta">Loading…</div>
       </div>
     </div>
+
     <div class="header-actions">
+      <!-- Student photo (right, before buttons) -->
+      <div class="student-photo-wrap">
+        <div class="student-label">
+          <strong id="headerStudentName">—</strong>
+          <span id="headerStudentClass">—</span>
+        </div>
+        <img class="student-photo" id="headerStudentPhoto"
+             src="img/student_image.png" alt="Student"
+             onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f5ede0%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 font-size=%2210%22 text-anchor=%22middle%22 fill=%22%237a3f0e%22 font-family=%22Arial%22>No Photo</text></svg>';">
+      </div>
       <button class="btn btn-secondary" id="backBtn">← Back</button>
       <button class="btn btn-danger" id="logoutBtn">Logout</button>
     </div>
@@ -300,21 +389,29 @@
   <!-- STUDENT HEADER -->
   <div class="card">
     <h2>👤 Student Information</h2>
-    <div class="grid-4">
-      <div><label>Student Name</label><input id="f_name" readonly></div>
-      <div><label>Class</label><input id="f_class" readonly></div>
-      <div><label>Term</label>
-        <select id="f_term">
-          <option value="FIRST">FIRST</option>
-          <option value="SECOND">SECOND</option>
-          <option value="THIRD">THIRD</option>
-        </select>
+    <div class="student-card-body">
+      <!-- Big student photo -->
+      <img class="student-photo-large" id="bigStudentPhoto"
+           src="img/student_image.png" alt="Student photo"
+           onerror="this.outerHTML='&lt;div class=\'student-photo-large-placeholder\'&gt;No Photo&lt;/div&gt;';">
+
+      <!-- Fields -->
+      <div class="student-fields">
+        <div><label>Student Name</label><input id="f_name" readonly></div>
+        <div><label>Class</label><input id="f_class" readonly></div>
+        <div><label>Term</label>
+          <select id="f_term">
+            <option value="FIRST">FIRST</option>
+            <option value="SECOND">SECOND</option>
+            <option value="THIRD">THIRD</option>
+          </select>
+        </div>
+        <div><label>Session</label><input id="f_session" readonly></div>
+        <div><label>House</label><input id="f_house" placeholder="e.g. Gold"></div>
+        <div><label>Attendance</label><input id="f_attendance" type="number" min="0"></div>
+        <div><label>Out of</label><input id="f_outOf" type="number" min="0"></div>
+        <div><label>Number in Class</label><input id="f_numberInClass" type="number" min="0"></div>
       </div>
-      <div><label>Session</label><input id="f_session" readonly></div>
-      <div><label>House</label><input id="f_house" placeholder="e.g. Gold"></div>
-      <div><label>Attendance</label><input id="f_attendance" type="number" min="0"></div>
-      <div><label>Out of</label><input id="f_outOf" type="number" min="0"></div>
-      <div><label>Number in Class</label><input id="f_numberInClass" type="number" min="0"></div>
     </div>
   </div>
 
@@ -547,7 +644,6 @@ function hideSuccessModal() {
 
 $("modalOkBtn").addEventListener("click", hideSuccessModal);
 successModal.addEventListener("click", (e) => {
-  // close if user clicks the dark background (not the box itself)
   if (e.target === successModal) hideSuccessModal();
 });
 document.addEventListener("keydown", (e) => {
@@ -558,7 +654,6 @@ document.addEventListener("keydown", (e) => {
    6. BUILD SUBJECT ROWS
    ============================================================ */
 const INPUT_FIELDS  = ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf","pos"];
-const CALC_FIELDS   = ["casum","total","cummScore","avg","grade"];
 
 function buildSubjectRows() {
   const tbody = $("subjectsBody");
@@ -678,7 +773,8 @@ function blankTemplate() {
   return {
     student: {
       name: student, class: cls, term: "FIRST", session: session,
-      house: "", attendance: 0, outOf: 0, numberInClass: 0
+      house: "", attendance: 0, outOf: 0, numberInClass: 0,
+      image: ""
     },
     subjects: {},
     characterDevelopment: {},
@@ -697,6 +793,19 @@ function fillForm(data) {
   $("f_attendance").value     = s.attendance ?? "";
   $("f_outOf").value          = s.outOf ?? "";
   $("f_numberInClass").value  = s.numberInClass ?? "";
+
+  // ---------- Student image ----------
+  // Priority: s.image from DB → fallback to img/student_image.png
+  const studentImage = s.image && s.image.trim() ? s.image : "img/student_image.png";
+
+  const headerPhoto = $("headerStudentPhoto");
+  const bigPhoto    = $("bigStudentPhoto");
+  if (headerPhoto) headerPhoto.src = studentImage;
+  if (bigPhoto)    bigPhoto.src    = studentImage;
+
+  // Also show name in the header (above the photo)
+  $("headerStudentName").textContent  = s.name || student;
+  $("headerStudentClass").textContent = `${cls} · ${session}`;
 
   const subjData = data.subjects || {};
   document.querySelectorAll("#subjectsBody tr").forEach(tr => {
@@ -786,6 +895,11 @@ function collectData() {
     };
   });
 
+  // Preserve the student's image if it was already in the DB
+  const existingImage = $("bigStudentPhoto") && $("bigStudentPhoto").src && !$("bigStudentPhoto").src.startsWith("data:")
+    ? $("bigStudentPhoto").getAttribute("src")
+    : "";
+
   return {
     student: {
       name: $("f_name").value, class: $("f_class").value,
@@ -793,7 +907,8 @@ function collectData() {
       house: $("f_house").value,
       attendance: $("f_attendance").value === "" ? "" : Number($("f_attendance").value),
       outOf: $("f_outOf").value === "" ? "" : Number($("f_outOf").value),
-      numberInClass: $("f_numberInClass").value === "" ? "" : Number($("f_numberInClass").value)
+      numberInClass: $("f_numberInClass").value === "" ? "" : Number($("f_numberInClass").value),
+      image: existingImage
     },
     subjects: subjectsOut,
     characterDevelopment: charOut,
