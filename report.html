@@ -11,7 +11,6 @@
 
 <style>
   * { box-sizing: border-box; }
-
   html, body { margin: 0; padding: 0; }
 
   body {
@@ -41,14 +40,8 @@
     pointer-events: none;
   }
 
-  .wrap {
-    max-width: 1400px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
-  }
+  .wrap { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
 
-  /* ---------- TOP BAR ---------- */
   header.topbar {
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px; flex-wrap: wrap; margin-bottom: 18px;
@@ -59,35 +52,22 @@
     box-shadow: 0 6px 18px rgba(122, 63, 14, 0.12);
     backdrop-filter: blur(2px);
   }
-
-  .brand {
-    display: flex; align-items: center; gap: 14px;
-    flex: 1; min-width: 0;
-  }
+  .brand { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
   .brand .logo {
-    width: 56px; height: 56px;
-    object-fit: contain;
-    border-radius: 50%;
-    background: #fff;
-    border: 2px solid #b87c44;
-    padding: 4px;
+    width: 56px; height: 56px; object-fit: contain;
+    border-radius: 50%; background: #fff;
+    border: 2px solid #b87c44; padding: 4px;
     box-shadow: 0 3px 8px rgba(122, 63, 14, 0.18);
     flex-shrink: 0;
   }
-  header.topbar h1 {
-    margin: 0; font-size: 1.3rem; color: #7a3f0e;
-    letter-spacing: 0.3px; line-height: 1.2;
-  }
+  header.topbar h1 { margin: 0; font-size: 1.3rem; color: #7a3f0e; letter-spacing: 0.3px; line-height: 1.2; }
   header.topbar .meta {
     font-size: 0.78rem; color: #6f6456; margin-top: 2px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
-  .header-actions {
-    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
-  }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
-  /* ---------- STUDENT PHOTO IN HEADER (right side) ---------- */
   .student-photo {
     width: 56px; height: 56px;
     object-fit: cover;
@@ -98,30 +78,14 @@
     box-shadow: 0 3px 8px rgba(122, 63, 14, 0.22);
     flex-shrink: 0;
   }
-  .student-photo-wrap {
-    display: flex; align-items: center; gap: 10px;
-    flex-shrink: 0;
-  }
-  .student-photo-wrap .student-label {
-    text-align: right;
-    line-height: 1.15;
-    font-size: 0.72rem;
-    color: #6f6456;
-  }
+  .student-photo-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .student-photo-wrap .student-label { text-align: right; line-height: 1.15; font-size: 0.72rem; color: #6f6456; }
   .student-photo-wrap .student-label strong {
-    display: block;
-    color: #7a3f0e;
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    white-space: nowrap;
-    max-width: 160px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    display: block; color: #7a3f0e; font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;
   }
 
-  /* ---------- BUTTONS ---------- */
   .btn {
     padding: 10px 22px; border-radius: 40px; font-weight: 700;
     font-size: 0.85rem; cursor: pointer; transition: 0.1s;
@@ -137,7 +101,6 @@
   .btn-danger:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #3d0a0a; }
   .btn:disabled { opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none; }
 
-  /* ---------- CARD ---------- */
   .card {
     background: rgba(255,255,255,0.96);
     border: 2px solid #b87c44;
@@ -152,7 +115,6 @@
     border-bottom:2px double #d7b893; padding-bottom:8px;
   }
 
-  /* ---------- STUDENT INFO CARD (photo + fields) ---------- */
   .student-card-body {
     display: grid;
     grid-template-columns: 130px 1fr;
@@ -166,45 +128,29 @@
     border-radius: 8px;
     background: #fdfaf5;
     box-shadow: 0 4px 12px rgba(122,63,14,0.15);
+    display: block;
   }
-  .student-photo-large-placeholder {
-    width: 130px; height: 150px;
-    border: 2px dashed #b87c44;
-    border-radius: 8px;
+  .student-photo-large.placeholder {
+    object-fit: contain;
+    padding: 10px;
     background: #f5ede0;
-    display: flex; align-items: center; justify-content: center;
-    text-align: center;
-    font-size: 0.75rem;
-    color: #8b7d68;
-    padding: 8px;
-    font-weight: 600;
+    border-style: dashed;
   }
-  .student-fields {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-  @media (max-width: 900px) {
-    .student-fields { grid-template-columns: repeat(2, 1fr); }
-  }
+  .student-fields { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 900px) { .student-fields { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 640px) {
     .student-card-body { grid-template-columns: 1fr; justify-items: center; }
-    .student-photo-large, .student-photo-large-placeholder { width: 110px; height: 130px; }
+    .student-photo-large { width: 110px; height: 130px; }
     .student-fields { grid-template-columns: 1fr 1fr; width: 100%; }
   }
 
-  label {
-    display:block; font-weight:600; font-size:0.78rem;
-    margin:10px 0 4px; color:#5f3d1a;
-  }
+  label { display:block; font-weight:600; font-size:0.78rem; margin:10px 0 4px; color:#5f3d1a; }
   input, select, textarea {
     width:100%; padding:8px 10px; border:2px solid #d7b893;
     border-radius:6px; font-size:0.88rem; background:#fdfaf5;
     font-family:inherit; transition:border-color 0.15s;
   }
-  input:focus, select:focus, textarea:focus {
-    outline:none; border-color:#7a3f0e; background:#fff;
-  }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:#7a3f0e; background:#fff; }
   input[readonly] { background:#f0e8dc; color:#6f6456; }
 
   .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
@@ -213,13 +159,8 @@
 
   .table-scroll { overflow-x:auto; }
   table { width:100%; border-collapse:collapse; font-size:0.78rem; }
-  table th, table td {
-    border:1px solid #d7b893; padding:4px 5px; text-align:center;
-  }
-  table th {
-    background:#f5ede0; color:#5f3d1a; font-weight:700;
-    font-size:0.7rem; white-space:nowrap;
-  }
+  table th, table td { border:1px solid #d7b893; padding:4px 5px; text-align:center; }
+  table th { background:#f5ede0; color:#5f3d1a; font-weight:700; font-size:0.7rem; white-space:nowrap; }
   table td.subj-name {
     text-align:left; font-weight:600; color:#5f3d1a;
     padding-left:8px; white-space:nowrap; min-width:150px;
@@ -228,17 +169,11 @@
     padding:4px 3px; font-size:0.78rem; text-align:center;
     border-width:1px; border-radius:4px; background:#fff; min-width:48px;
   }
-  table td.calc {
-    background:#f5ede0; font-weight:700; color:#7a3f0e; font-size:0.78rem;
-  }
-  table td.grade {
-    font-weight:800; color:#7a3f0e; font-size:0.85rem;
-  }
+  table td.calc { background:#f5ede0; font-weight:700; color:#7a3f0e; font-size:0.78rem; }
+  table td.grade { font-weight:800; color:#7a3f0e; font-size:0.85rem; }
 
   .skills-table td.subj-name { width:200px; }
-  .remarks-grid {
-    display:grid; grid-template-columns:1fr 1fr; gap:12px;
-  }
+  .remarks-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
   @media (max-width:700px){ .remarks-grid { grid-template-columns:1fr; } }
   textarea { min-height:70px; resize:vertical; }
 
@@ -260,88 +195,42 @@
   .status.success { display:block; background:#c8e6c9; color:#1e4a2a; }
   .status.warning { display:block; background:#fff3cd; color:#7a5a0a; }
 
-  /* ============================================================
-     SUCCESS MODAL
-     ============================================================ */
   .modal-overlay {
     position: fixed; inset: 0;
     background: rgba(30, 26, 22, 0.55);
-    display: none;
-    align-items: center; justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-    backdrop-filter: blur(3px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px; backdrop-filter: blur(3px);
   }
   .modal-overlay.show { display: flex; }
-
   .modal-box {
-    background: #fff;
-    border: 3px solid #2b6e4e;
-    border-radius: 16px;
-    padding: 32px 34px 26px;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
+    background: #fff; border: 3px solid #2b6e4e; border-radius: 16px;
+    padding: 32px 34px 26px; max-width: 420px; width: 100%; text-align: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.35);
     animation: pop-in 0.22s ease-out;
   }
-  @keyframes pop-in {
-    from { transform: scale(0.85); opacity: 0; }
-    to   { transform: scale(1);    opacity: 1; }
-  }
+  @keyframes pop-in { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   .modal-box .icon {
-    width: 72px; height: 72px;
-    margin: 0 auto 14px;
-    border-radius: 50%;
-    background: #c8e6c9;
-    color: #1e4a2a;
+    width: 72px; height: 72px; margin: 0 auto 14px;
+    border-radius: 50%; background: #c8e6c9; color: #1e4a2a;
     display: flex; align-items: center; justify-content: center;
-    font-size: 2.4rem;
-    font-weight: 900;
-    border: 3px solid #2b6e4e;
+    font-size: 2.4rem; font-weight: 900; border: 3px solid #2b6e4e;
   }
-  .modal-box h3 {
-    margin: 0 0 6px;
-    font-size: 1.25rem;
-    color: #1f4a2a;
-    letter-spacing: 0.3px;
-  }
-  .modal-box p {
-    margin: 0 0 18px;
-    font-size: 0.88rem;
-    color: #5f3d1a;
-    line-height: 1.45;
-  }
+  .modal-box h3 { margin: 0 0 6px; font-size: 1.25rem; color: #1f4a2a; letter-spacing: 0.3px; }
+  .modal-box p { margin: 0 0 18px; font-size: 0.88rem; color: #5f3d1a; line-height: 1.45; }
   .modal-box .details {
-    background: #f5ede0;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 0.78rem;
-    color: #5f3d1a;
-    margin-bottom: 18px;
-    text-align: left;
-    word-break: break-all;
+    background: #f5ede0; border-radius: 8px; padding: 8px 12px;
+    font-size: 0.78rem; color: #5f3d1a; margin-bottom: 18px;
+    text-align: left; word-break: break-all;
   }
   .modal-box .details strong { color: #7a3f0e; }
   .modal-box .modal-btn {
-    padding: 11px 32px;
-    background: #2b6e4e;
-    color: #fff;
-    border: 2px solid #1f5a3e;
-    border-radius: 40px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-    box-shadow: 3px 3px 0 #1a452f;
-    transition: 0.1s;
-    font-family: inherit;
+    padding: 11px 32px; background: #2b6e4e; color: #fff;
+    border: 2px solid #1f5a3e; border-radius: 40px;
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    box-shadow: 3px 3px 0 #1a452f; transition: 0.1s; font-family: inherit;
   }
-  .modal-box .modal-btn:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 #1a452f;
-  }
+  .modal-box .modal-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #1a452f; }
 
-  /* ---------- PRINT ---------- */
   @media print {
     body { background:#fff !important; padding:0; }
     body::before { display: none; }
@@ -359,9 +248,7 @@
 
   <header class="topbar">
     <div class="brand">
-      <!-- School logo (left) -->
-      <img class="logo" src="img/logo.png" alt="Wisdom Foundation Logo"
-           onerror="this.style.display='none';">
+      <img class="logo" id="schoolLogo" src="img/logo.png" alt="School Logo">
       <div>
         <h1>📄 Report Sheet</h1>
         <div class="meta" id="headerMeta">Loading…</div>
@@ -369,15 +256,12 @@
     </div>
 
     <div class="header-actions">
-      <!-- Student photo (right, before buttons) -->
       <div class="student-photo-wrap">
         <div class="student-label">
           <strong id="headerStudentName">—</strong>
           <span id="headerStudentClass">—</span>
         </div>
-        <img class="student-photo" id="headerStudentPhoto"
-             src="img/student_image.png" alt="Student"
-             onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23f5ede0%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 font-size=%2210%22 text-anchor=%22middle%22 fill=%22%237a3f0e%22 font-family=%22Arial%22>No Photo</text></svg>';">
+        <img class="student-photo" id="headerStudentPhoto" src="" alt="Student">
       </div>
       <button class="btn btn-secondary" id="backBtn">← Back</button>
       <button class="btn btn-danger" id="logoutBtn">Logout</button>
@@ -386,16 +270,11 @@
 
   <div id="status" class="status"></div>
 
-  <!-- STUDENT HEADER -->
   <div class="card">
     <h2>👤 Student Information</h2>
     <div class="student-card-body">
-      <!-- Big student photo -->
-      <img class="student-photo-large" id="bigStudentPhoto"
-           src="img/student_image.png" alt="Student photo"
-           onerror="this.outerHTML='&lt;div class=\'student-photo-large-placeholder\'&gt;No Photo&lt;/div&gt;';">
+      <img class="student-photo-large" id="bigStudentPhoto" src="" alt="Student photo">
 
-      <!-- Fields -->
       <div class="student-fields">
         <div><label>Student Name</label><input id="f_name" readonly></div>
         <div><label>Class</label><input id="f_class" readonly></div>
@@ -415,7 +294,6 @@
     </div>
   </div>
 
-  <!-- SUBJECTS -->
   <div class="card">
     <h2>📚 Subject Scores</h2>
     <div class="table-scroll">
@@ -423,20 +301,11 @@
         <thead>
           <tr>
             <th style="text-align:left; padding-left:8px;">Subject</th>
-            <th>TEST1</th>
-            <th>TEST2</th>
-            <th>TEST3</th>
-            <th>ASS1</th>
-            <th>ASS2</th>
-            <th>ASS3</th>
-            <th>CASUM</th>
-            <th>EXAM</th>
-            <th>TOTAL</th>
-            <th>CUMM b/f</th>
-            <th>CUMM SCORE</th>
-            <th>AVG</th>
-            <th>POS</th>
-            <th>GRADE</th>
+            <th>TEST1</th><th>TEST2</th><th>TEST3</th>
+            <th>ASS1</th><th>ASS2</th><th>ASS3</th>
+            <th>CASUM</th><th>EXAM</th><th>TOTAL</th>
+            <th>CUMM b/f</th><th>CUMM SCORE</th><th>AVG</th>
+            <th>POS</th><th>GRADE</th>
           </tr>
         </thead>
         <tbody id="subjectsBody"></tbody>
@@ -444,7 +313,6 @@
     </div>
   </div>
 
-  <!-- CHARACTER -->
   <div class="card">
     <h2>🌟 Character Development</h2>
     <div class="table-scroll">
@@ -457,7 +325,6 @@
     </div>
   </div>
 
-  <!-- PRACTICAL SKILLS -->
   <div class="card">
     <h2>🤸 Practical Skills</h2>
     <div class="table-scroll">
@@ -470,7 +337,6 @@
     </div>
   </div>
 
-  <!-- REMARKS -->
   <div class="card">
     <h2>💬 Remarks</h2>
     <div class="remarks-grid">
@@ -486,13 +352,10 @@
 
 <div class="actions-bar">
   <button class="btn btn-success" id="saveBtn">💾 Save</button>
-  <!--<button class="btn btn-primary" id="printBtn">🖨️ Print</button>-->
+  <button class="btn btn-primary" id="printBtn">🖨️ Print</button>
   <button class="btn btn-secondary" id="reloadBtn">🔄 Reload</button>
 </div>
 
-<!-- ============================================================
-     SUCCESS MODAL
-     ============================================================ -->
 <div class="modal-overlay" id="successModal">
   <div class="modal-box">
     <div class="icon">✓</div>
@@ -612,8 +475,7 @@ const dataPath   = `/reports/${session}/${cls}/${studentKey}`;
 const isSenior   = cls.startsWith("SS");
 const subjects   = isSenior ? SENIOR_SUBJECTS : JUNIOR_SUBJECTS;
 
-document.getElementById("headerMeta").textContent =
-  `${cls} · ${session} · ${student}`;
+document.getElementById("headerMeta").textContent = `${cls} · ${session} · ${student}`;
 
 /* ============================================================
    5. DOM REFS + STATUS + MODAL
@@ -625,9 +487,7 @@ const successModal = $("successModal");
 function setStatus(msg, type = "info") {
   statusEl.className = "status " + type;
   statusEl.textContent = msg;
-  if (type === "success") {
-    setTimeout(() => { statusEl.className = "status"; }, 4000);
-  }
+  if (type === "success") setTimeout(() => { statusEl.className = "status"; }, 4000);
 }
 
 function showSuccessModal(savedStudentName) {
@@ -638,9 +498,7 @@ function showSuccessModal(savedStudentName) {
     `<strong>Saved at:</strong> ${now.toLocaleString()}`;
   successModal.classList.add("show");
 }
-function hideSuccessModal() {
-  successModal.classList.remove("show");
-}
+function hideSuccessModal() { successModal.classList.remove("show"); }
 
 $("modalOkBtn").addEventListener("click", hideSuccessModal);
 successModal.addEventListener("click", (e) => {
@@ -651,12 +509,38 @@ document.addEventListener("keydown", (e) => {
 });
 
 /* ============================================================
-   6. BUILD SUBJECT ROWS
+   6. IMAGE HELPERS
    ============================================================ */
-const INPUT_FIELDS  = ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf","pos"];
+const NO_PHOTO_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+  '<rect fill="#f5ede0" width="100" height="100"/>' +
+  '<text x="50" y="55" font-size="11" text-anchor="middle" fill="#7a3f0e" font-family="Arial">No Photo</text>' +
+  '</svg>'
+);
+
+function setImageWithFallback(imgEl, src, fallbackSrc) {
+  if (!imgEl) return;
+  imgEl.onerror = null;
+  imgEl.onerror = function () {
+    this.onerror = null;
+    if (fallbackSrc && this.src !== fallbackSrc) {
+      this.src = fallbackSrc;
+    } else {
+      this.src = NO_PHOTO_SVG;
+      this.classList.add("placeholder");
+    }
+  };
+  imgEl.src = src || fallbackSrc || NO_PHOTO_SVG;
+}
+
+/* ============================================================
+   7. BUILD SUBJECT ROWS
+   ============================================================ */
+const INPUT_FIELDS = ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf","pos"];
 
 function buildSubjectRows() {
   const tbody = $("subjectsBody");
+  if (!tbody) return;
   tbody.innerHTML = "";
   subjects.forEach(subj => {
     const tr = document.createElement("tr");
@@ -698,12 +582,8 @@ function setCalc(tr, key, value) {
 }
 
 function recalcRow(tr) {
-  const t1 = num(tr, "test1");
-  const t2 = num(tr, "test2");
-  const t3 = num(tr, "test3");
-  const a1 = num(tr, "ass1");
-  const a2 = num(tr, "ass2");
-  const a3 = num(tr, "ass3");
+  const t1 = num(tr, "test1"), t2 = num(tr, "test2"), t3 = num(tr, "test3");
+  const a1 = num(tr, "ass1"), a2 = num(tr, "ass2"), a3 = num(tr, "ass3");
   const exam = num(tr, "exam");
   const cummBf = num(tr, "cummBf");
 
@@ -729,10 +609,11 @@ function recalcRow(tr) {
 }
 
 /* ============================================================
-   7. SKILL ROWS
+   8. SKILL ROWS
    ============================================================ */
 function buildSkillRows(containerId, items) {
   const tbody = document.getElementById(containerId);
+  if (!tbody) return;
   tbody.innerHTML = "";
   items.forEach(name => {
     const tr = document.createElement("tr");
@@ -746,7 +627,7 @@ function buildSkillRows(containerId, items) {
 }
 
 /* ============================================================
-   8. LOAD
+   9. LOAD
    ============================================================ */
 function loadData() {
   setStatus("⏳ Loading record…", "info");
@@ -773,8 +654,7 @@ function blankTemplate() {
   return {
     student: {
       name: student, class: cls, term: "FIRST", session: session,
-      house: "", attendance: 0, outOf: 0, numberInClass: 0,
-      image: ""
+      house: "", attendance: 0, outOf: 0, numberInClass: 0, image: ""
     },
     subjects: {},
     characterDevelopment: {},
@@ -794,17 +674,13 @@ function fillForm(data) {
   $("f_outOf").value          = s.outOf ?? "";
   $("f_numberInClass").value  = s.numberInClass ?? "";
 
-  // ---------- Student image ----------
-  // Priority: s.image from DB → fallback to img/student_image.png
-  const studentImage = s.image && s.image.trim() ? s.image : "img/student_image.png";
-  //const studentImage = s.image && s.image.trim() ? s.image : `img/${studentKey}.png`;
+  /* ---------- Student images ---------- */
+  const studentImage = (s.image && String(s.image).trim()) ? String(s.image).trim() : "";
+  const fallback     = "img/student_image.png";
 
-  const headerPhoto = $("headerStudentPhoto");
-  const bigPhoto    = $("bigStudentPhoto");
-  if (headerPhoto) headerPhoto.src = studentImage;
-  if (bigPhoto)    bigPhoto.src    = studentImage;
+  setImageWithFallback($("headerStudentPhoto"), studentImage || fallback, NO_PHOTO_SVG);
+  setImageWithFallback($("bigStudentPhoto"),    studentImage || fallback, NO_PHOTO_SVG);
 
-  // Also show name in the header (above the photo)
   $("headerStudentName").textContent  = s.name || student;
   $("headerStudentClass").textContent = `${cls} · ${session}`;
 
@@ -826,8 +702,8 @@ function fillForm(data) {
     recalcRow(tr);
   });
 
-  fillSkillSection("characterBody", data.characterDevelopment, "trait");
-  fillSkillSection("practicalBody", data.practicalSkills, "skill");
+  fillSkillSection("characterBody", data.characterDevelopment);
+  fillSkillSection("practicalBody", data.practicalSkills);
 
   const r = data.remarks || {};
   $("r_teacher").value   = r.teacher   || r["Teacher Remark"]        || "";
@@ -839,7 +715,7 @@ function fillForm(data) {
 
 function fillSkillSection(tbodyId, dataObj) {
   if (!dataObj) return;
-  let list = Array.isArray(dataObj) ? dataObj : Object.values(dataObj);
+  const list = Array.isArray(dataObj) ? dataObj : Object.values(dataObj);
   document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
     const name = tr.dataset.name;
     const found = list.find(x => (x.trait || x.skill) === name);
@@ -855,7 +731,7 @@ function slug(str) {
 }
 
 /* ============================================================
-   9. SAVE
+   10. SAVE
    ============================================================ */
 function collectData() {
   const subjectsOut = {};
@@ -868,38 +744,32 @@ function collectData() {
     });
     const pos = tr.querySelector('input[data-field="pos"]');
     entry.pos = pos ? pos.value : "";
-
     entry.casum     = tr.querySelector('[data-calc="casum"]').textContent;
     entry.total     = tr.querySelector('[data-calc="total"]').textContent;
     entry.cummScore = tr.querySelector('[data-calc="cummScore"]').textContent;
     entry.avg       = tr.querySelector('[data-calc="avg"]').textContent;
     entry.grade     = tr.querySelector('[data-calc="grade"]').textContent;
-
     subjectsOut[key] = entry;
   });
 
   const charOut = {};
   document.querySelectorAll("#characterBody tr").forEach(tr => {
     const inp = tr.querySelector('input[data-field="rating"]');
-    charOut[tr.dataset.name] = {
-      trait: tr.dataset.name,
-      rating: inp.value === "" ? "" : Number(inp.value)
-    };
+    charOut[tr.dataset.name] = { trait: tr.dataset.name, rating: inp.value === "" ? "" : Number(inp.value) };
   });
 
   const pracOut = {};
   document.querySelectorAll("#practicalBody tr").forEach(tr => {
     const inp = tr.querySelector('input[data-field="rating"]');
-    pracOut[tr.dataset.name] = {
-      skill: tr.dataset.name,
-      rating: inp.value === "" ? "" : Number(inp.value)
-    };
+    pracOut[tr.dataset.name] = { skill: tr.dataset.name, rating: inp.value === "" ? "" : Number(inp.value) };
   });
 
-  // Preserve the student's image if it was already in the DB
-  const existingImage = $("bigStudentPhoto") && $("bigStudentPhoto").src && !$("bigStudentPhoto").src.startsWith("data:")
-    ? $("bigStudentPhoto").getAttribute("src")
-    : "";
+  // Preserve the existing image path if it was loaded from the DB
+  const bigImg = $("bigStudentPhoto");
+  let existingImage = "";
+  if (bigImg && bigImg.dataset && bigImg.dataset.dbImage) {
+    existingImage = bigImg.dataset.dbImage;
+  }
 
   return {
     student: {
@@ -931,7 +801,6 @@ function collectData() {
 function save() {
   setStatus("💾 Saving…", "info");
   const payload = collectData();
-
   db.ref(dataPath).set(payload)
     .then(() => {
       setStatus("✅ Saved successfully.", "success");
@@ -944,7 +813,7 @@ function save() {
 }
 
 /* ============================================================
-   10. EVENTS
+   11. EVENTS
    ============================================================ */
 $("saveBtn").addEventListener("click", save);
 $("printBtn").addEventListener("click", () => window.print());
@@ -958,12 +827,12 @@ $("logoutBtn").addEventListener("click", async () => {
 });
 
 /* ============================================================
-   11. INIT
+   12. INIT (each step protected)
    ============================================================ */
-buildSubjectRows();
-buildSkillRows("characterBody", CHARACTER_TRAITS);
-buildSkillRows("practicalBody", PRACTICAL_SKILLS);
-loadData();
+try { buildSubjectRows(); } catch (e) { console.error("buildSubjectRows failed:", e); }
+try { buildSkillRows("characterBody", CHARACTER_TRAITS); } catch (e) { console.error("characterBody failed:", e); }
+try { buildSkillRows("practicalBody", PRACTICAL_SKILLS); } catch (e) { console.error("practicalBody failed:", e); }
+try { loadData(); } catch (e) { console.error("loadData failed:", e); }
 </script>
 </body>
 </html>
