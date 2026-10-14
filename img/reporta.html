@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report Sheet · Wisdom Foundation Portal</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1f1c18;
+    padding: 24px 16px 90px;
+    position: relative;
+    overflow-x: hidden;
+
+    background-color: #f7efe0;
+    background-image: url('img/background-logo.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg,
+                rgba(247, 239, 224, 0.9) 0%,
+                rgba(232, 215, 186, 0.9) 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .wrap { max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; }
+
+  header.topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 18px;
+    background: rgba(255,255,255,0.94);
+    border: 2px solid #b87c44;
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 6px 18px rgba(122, 63, 14, 0.12);
+    backdrop-filter: blur(2px);
+  }
+  .brand { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+  .brand .logo {
+    width: 56px; height: 56px; object-fit: contain;
+    border-radius: 50%; background: #fff;
+    border: 2px solid #b87c44; padding: 4px;
+    box-shadow: 0 3px 8px rgba(122, 63, 14, 0.18);
+    flex-shrink: 0;
+  }
+  header.topbar h1 { margin: 0; font-size: 1.3rem; color: #7a3f0e; letter-spacing: 0.3px; line-height: 1.2; }
+  header.topbar .meta {
+    font-size: 0.78rem; color: #6f6456; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  .student-photo {
+    width: 56px; height: 56px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #7a3f0e;
+    padding: 2px;
+    box-shadow: 0 3px 8px rgba(122, 63, 14, 0.22);
+    flex-shrink: 0;
+  }
+  .student-photo-wrap { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .student-photo-wrap .student-label { text-align: right; line-height: 1.15; font-size: 0.72rem; color: #6f6456; }
+  .student-photo-wrap .student-label strong {
+    display: block; color: #7a3f0e; font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.3px;
+    white-space: nowrap; max-width: 160px; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .btn {
+    padding: 10px 22px; border-radius: 40px; font-weight: 700;
+    font-size: 0.85rem; cursor: pointer; transition: 0.1s;
+    border: 2px solid; font-family: inherit;
+  }
+  .btn-primary  { background:#b55a1a; color:#fff; border-color:#7d3c0c; box-shadow:3px 3px 0 #5f2e0a; }
+  .btn-primary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #5f2e0a; }
+  .btn-secondary{ background:#1e2f3f; color:#fff; border-color:#1a2937; box-shadow:3px 3px 0 #0f1a24; }
+  .btn-secondary:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #0f1a24; }
+  .btn-success  { background:#2b6e4e; color:#fff; border-color:#1f5a3e; box-shadow:3px 3px 0 #1a452f; }
+  .btn-success:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #1a452f; }
+  .btn-danger   { background:#8b1a1a; color:#fff; border-color:#5f0f0f; box-shadow:3px 3px 0 #3d0a0a; }
+  .btn-danger:hover:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 #3d0a0a; }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none; }
+
+  .card {
+    background: rgba(255,255,255,0.96);
+    border: 2px solid #b87c44;
+    border-radius: 12px;
+    padding: 22px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 22px rgba(122,63,14,0.12);
+    backdrop-filter: blur(2px);
+  }
+  .card h2 {
+    margin:0 0 14px; font-size:1.05rem; color:#7a3f0e;
+    border-bottom:2px double #d7b893; padding-bottom:8px;
+  }
+
+  .student-card-body {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .student-photo-large {
+    width: 130px; height: 150px;
+    object-fit: cover;
+    border: 2px solid #b87c44;
+    border-radius: 8px;
+    background: #fdfaf5;
+    box-shadow: 0 4px 12px rgba(122,63,14,0.15);
+    display: block;
+  }
+  .student-photo-large.placeholder {
+    object-fit: contain;
+    padding: 10px;
+    background: #f5ede0;
+    border-style: dashed;
+  }
+  .student-fields { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 900px) { .student-fields { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) {
+    .student-card-body { grid-template-columns: 1fr; justify-items: center; }
+    .student-photo-large { width: 110px; height: 130px; }
+    .student-fields { grid-template-columns: 1fr 1fr; width: 100%; }
+  }
+
+  label { display:block; font-weight:600; font-size:0.78rem; margin:10px 0 4px; color:#5f3d1a; }
+  input, select, textarea {
+    width:100%; padding:8px 10px; border:2px solid #d7b893;
+    border-radius:6px; font-size:0.88rem; background:#fdfaf5;
+    font-family:inherit; transition:border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:#7a3f0e; background:#fff; }
+  input[readonly] { background:#f0e8dc; color:#6f6456; }
+
+  .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  @media (max-width:900px){ .grid-4 { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:640px){ .grid-4 { grid-template-columns:1fr; } }
+
+  .table-scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:0.78rem; }
+  table th, table td { border:1px solid #d7b893; padding:4px 5px; text-align:center; }
+  table th { background:#f5ede0; color:#5f3d1a; font-weight:700; font-size:0.7rem; white-space:nowrap; }
+  table td.subj-name {
+    text-align:left; font-weight:600; color:#5f3d1a;
+    padding-left:8px; white-space:nowrap; min-width:150px;
+  }
+  table td input {
+    padding:4px 3px; font-size:0.78rem; text-align:center;
+    border-width:1px; border-radius:4px; background:#fff; min-width:48px;
+  }
+  table td.calc { background:#f5ede0; font-weight:700; color:#7a3f0e; font-size:0.78rem; }
+  table td.grade { font-weight:800; color:#7a3f0e; font-size:0.85rem; }
+
+  .skills-table td.subj-name { width:200px; }
+  .remarks-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  @media (max-width:700px){ .remarks-grid { grid-template-columns:1fr; } }
+  textarea { min-height:70px; resize:vertical; }
+
+  .actions-bar {
+    position:fixed; bottom:0; left:0; right:0;
+    background:rgba(255,255,255,0.97);
+    border-top:2px solid #b87c44; padding:12px 20px;
+    display:flex; gap:10px; justify-content:center;
+    flex-wrap:wrap; box-shadow:0 -4px 12px rgba(0,0,0,0.08);
+    z-index:100;
+  }
+
+  .status {
+    margin-top:14px; padding:11px 16px; border-radius:8px;
+    font-size:0.85rem; font-weight:600; display:none; text-align:center;
+  }
+  .status.info    { display:block; background:#bbdefb; color:#0d3b66; }
+  .status.error   { display:block; background:#ffcdd2; color:#8b1a1a; }
+  .status.success { display:block; background:#c8e6c9; color:#1e4a2a; }
+  .status.warning { display:block; background:#fff3cd; color:#7a5a0a; }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(30, 26, 22, 0.55);
+    display: none; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px; backdrop-filter: blur(3px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #fff; border: 3px solid #2b6e4e; border-radius: 16px;
+    padding: 32px 34px 26px; max-width: 420px; width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    animation: pop-in 0.22s ease-out;
+  }
+  @keyframes pop-in { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-box .icon {
+    width: 72px; height: 72px; margin: 0 auto 14px;
+    border-radius: 50%; background: #c8e6c9; color: #1e4a2a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.4rem; font-weight: 900; border: 3px solid #2b6e4e;
+  }
+  .modal-box h3 { margin: 0 0 6px; font-size: 1.25rem; color: #1f4a2a; letter-spacing: 0.3px; }
+  .modal-box p { margin: 0 0 18px; font-size: 0.88rem; color: #5f3d1a; line-height: 1.45; }
+  .modal-box .details {
+    background: #f5ede0; border-radius: 8px; padding: 8px 12px;
+    font-size: 0.78rem; color: #5f3d1a; margin-bottom: 18px;
+    text-align: left; word-break: break-all;
+  }
+  .modal-box .details strong { color: #7a3f0e; }
+  .modal-box .modal-btn {
+    padding: 11px 32px; background: #2b6e4e; color: #fff;
+    border: 2px solid #1f5a3e; border-radius: 40px;
+    font-weight: 700; font-size: 0.9rem; cursor: pointer;
+    box-shadow: 3px 3px 0 #1a452f; transition: 0.1s; font-family: inherit;
+  }
+  .modal-box .modal-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #1a452f; }
+
+  @media print {
+    body { background:#fff !important; padding:0; }
+    body::before { display: none; }
+    header.topbar, .actions-bar, .status, .modal-overlay { display:none !important; }
+    .card { border:1px solid #999; box-shadow:none; page-break-inside:avoid; background: #fff; }
+    input, select, textarea { border:none; background:transparent; }
+    .table-scroll { overflow:visible; }
+    .student-photo-large { border: 1px solid #999; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" id="schoolLogo" src="img/logo.png" alt="School Logo">
+      <div>
+        <h1>📄 Report Sheet</h1>
+        <div class="meta" id="headerMeta">Loading…</div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="student-photo-wrap">
+        <div class="student-label">
+          <strong id="headerStudentName">—</strong>
+          <span id="headerStudentClass">—</span>
+        </div>
+        <img class="student-photo" id="headerStudentPhoto" src="" alt="Student">
+      </div>
+      <button class="btn btn-secondary" id="backBtn">← Back</button>
+      <button class="btn btn-danger" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div id="status" class="status"></div>
+
+  <div class="card">
+    <h2>👤 Student Information</h2>
+    <div class="student-card-body">
+      <img class="student-photo-large" id="bigStudentPhoto" src="" alt="Student photo">
+
+      <div class="student-fields">
+        <div><label>Student Name</label><input id="f_name" readonly></div>
+        <div><label>Class</label><input id="f_class" readonly></div>
+        <div><label>Term</label>
+          <select id="f_term">
+            <option value="FIRST">FIRST</option>
+            <option value="SECOND">SECOND</option>
+            <option value="THIRD">THIRD</option>
+          </select>
+        </div>
+        <div><label>Session</label><input id="f_session" readonly></div>
+        <div><label>House</label><input id="f_house" placeholder="e.g. Gold"></div>
+        <div><label>Attendance</label><input id="f_attendance" type="number" min="0"></div>
+        <div><label>Out of</label><input id="f_outOf" type="number" min="0"></div>
+        <div><label>Number in Class</label><input id="f_numberInClass" type="number" min="0"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📚 Subject Scores</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left; padding-left:8px;">Subject</th>
+            <th>TEST1</th><th>TEST2</th><th>TEST3</th>
+            <th>ASS1</th><th>ASS2</th><th>ASS3</th>
+            <th>CASUM</th><th>EXAM</th><th>TOTAL</th>
+            <th>CUMM b/f</th><th>CUMM SCORE</th><th>AVG</th>
+            <th>POS</th><th>GRADE</th>
+          </tr>
+        </thead>
+        <tbody id="subjectsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🌟 Character Development</h2>
+    <div class="table-scroll">
+      <table class="skills-table">
+        <thead>
+          <tr><th style="text-align:left; padding-left:8px;">Trait</th><th>Rating (1–5)</th></tr>
+        </thead>
+        <tbody id="characterBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🤸 Practical Skills</h2>
+    <div class="table-scroll">
+      <table class="skills-table">
+        <thead>
+          <tr><th style="text-align:left; padding-left:8px;">Skill</th><th>Rating (1–5)</th></tr>
+        </thead>
+        <tbody id="practicalBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>💬 Remarks</h2>
+    <div class="remarks-grid">
+      <div><label>Teacher Remark</label><textarea id="r_teacher"></textarea></div>
+      <div><label>House Master Remark</label><textarea id="r_house"></textarea></div>
+      <div><label>Principal Remark</label><textarea id="r_principal"></textarea></div>
+      <div><label>Next Term Begins</label><textarea id="r_nextTerm"></textarea></div>
+      <div style="grid-column: 1 / -1;"><label>Promoted To</label><input id="r_promotedTo"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="actions-bar">
+  <button class="btn btn-success" id="saveBtn">💾 Save</button>
+  <button class="btn btn-primary" id="printBtn">🖨️ Print</button>
+  <button class="btn btn-secondary" id="reloadBtn">🔄 Reload</button>
+</div>
+
+<div class="modal-overlay" id="successModal">
+  <div class="modal-box">
+    <div class="icon">✓</div>
+    <h3>Scores Saved Successfully</h3>
+    <p>The report sheet has been saved to the database.</p>
+    <div class="details" id="modalDetails">
+      <strong>Student:</strong> —<br>
+      <strong>Saved at:</strong> —
+    </div>
+    <button class="modal-btn" id="modalOkBtn">OK</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   1. FIREBASE CONFIG
+   ============================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBcbySKjFMndLDDYr6XOKPoX0rcUqY5dp4",
+  authDomain:        "wisdom-firsterm-records26-27.firebaseapp.com",
+  databaseURL:       "https://wisdom-firsterm-records26-27-default-rtdb.firebaseio.com",
+  projectId:         "wisdom-firsterm-records26-27",
+  storageBucket:     "wisdom-firsterm-records26-27.firebasestorage.app",
+  messagingSenderId: "476083129496",
+  appId:             "1:476083129496:web:25fcd0a42a1c10bfa7d4ed",
+  measurementId:     "G-0PJ3GJYY80"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.database();
+
+/* ============================================================
+   2. SESSION GUARD
+   ============================================================ */
+if (sessionStorage.getItem("wfs_logged_in") !== "true") {
+  window.location.replace("login.html");
+}
+auth.onAuthStateChanged((user) => {
+  if (!user) {
+    sessionStorage.removeItem("wfs_logged_in");
+    window.location.replace("login.html");
+  }
+});
+
+/* ============================================================
+   3. SUBJECT LISTS
+   ============================================================ */
+const JUNIOR_SUBJECTS = [
+  { key: "mathematics",           label: "Mathematics" },
+  { key: "english_language",      label: "English Language" },
+  { key: "english_literature",    label: "Literature in English" },
+  { key: "intermediate_science",  label: "Intermediate Science" },
+  { key: "digital_technology",    label: "Computer Studies" },
+  { key: "food_and_nutrition",    label: "Food And Nutrition" },
+  { key: "livestock_farming",     label: "Livestock Farming" },
+  { key: "social_Studies",        label: "Social | Citizenship Studies" },
+  { key: "business_studies",      label: "Business Studies" },
+  { key: "cultural_and_creative_art", label: "Cultural & Creative Art" },
+  { key: "yoruba",                label: "Yoruba" },
+  { key: "phe",                   label: "Physical Health Education" },
+  { key: "crs",                   label: "Christian Religious Studies" },
+  { key: "french",                label: "French" },
+  { key: "music",                 label: "Music" },
+  { key: "phonetics",             label: "Phonetics | Diction" },
+  { key: "nigerian_history",      label: "History" },
+  { key: "agricultural_science",  label: "Agricultural Science" },
+  { key: "fine_art",              label: "Fine Art" },
+  { key: "ekiti_values",          label: "Ekiti Values" }
+];
+
+const SENIOR_SUBJECTS = [
+  { key: "mathematics",            label: "Mathematics" },
+  { key: "english_language",       label: "English Language" },
+  { key: "chemistry",              label: "Chemistry" },
+  { key: "biology",                label: "Biology" },
+  { key: "yoruba",                 label: "Yoruba" },
+  { key: "citizenship_education",  label: "Citizenship | Heritage Studies" },
+  { key: "livestock_farming",      label: "Livestock Farming" },
+  { key: "agricultural_science",   label: "Agricultural Science" },
+  { key: "literature_in_english",  label: "Literature in English" },
+  { key: "crs",                    label: "Christian Religious Studies" },
+  { key: "physics",                label: "Physics" },
+  { key: "digital_technology",     label: "Digital Technology" },
+  { key: "economics",              label: "Economics" },
+  { key: "geography",              label: "Geography" },
+  { key: "account",                label: "Financial Accounting" },
+  { key: "government",             label: "Government" },
+  { key: "commerce",               label: "Commerce" },
+  { key: "marketing",              label: "Marketing" },
+  { key: "fine_art",               label: "Fine Art" },
+  { key: "further_mathematics",    label: "Further Mathematics" },
+  { key: "history",                label: "Nigerian History" },
+  { key: "phonetics",              label: "Phonetics" }
+];
+
+const CHARACTER_TRAITS = ["Punctuality","Attentiveness","Neatness","Honesty","Relationship"];
+const PRACTICAL_SKILLS = ["Sport","Club","Fluency","Handwriting"];
+
+/* ============================================================
+   4. URL PARAMS
+   ============================================================ */
+const params  = new URLSearchParams(window.location.search);
+const session = params.get("session");
+const cls     = params.get("class");
+const student = params.get("student");
+
+if (!session || !cls || !student) {
+  document.body.innerHTML = "<div style='padding:40px; font-family:sans-serif;'>" +
+    "<h2>⚠️ Missing parameters</h2>" +
+    "<p>URL must include <code>session</code>, <code>class</code>, and <code>student</code>.</p>" +
+    "<a href='dashboard.html'>← Back to dashboard</a></div>";
+  throw new Error("Missing URL params");
+}
+
+const studentKey = student.toLowerCase().trim().replace(/\s+/g, "_").replace(/[^\w_]/g, "");
+const dataPath   = `/reports/${session}/${cls}/${studentKey}`;
+const isSenior   = cls.startsWith("SS");
+const subjects   = isSenior ? SENIOR_SUBJECTS : JUNIOR_SUBJECTS;
+
+document.getElementById("headerMeta").textContent = `${cls} · ${session} · ${student}`;
+
+/* ============================================================
+   5. DOM REFS + STATUS + MODAL
+   ============================================================ */
+const $ = (id) => document.getElementById(id);
+const statusEl = $("status");
+const successModal = $("successModal");
+
+function setStatus(msg, type = "info") {
+  statusEl.className = "status " + type;
+  statusEl.textContent = msg;
+  if (type === "success") setTimeout(() => { statusEl.className = "status"; }, 4000);
+}
+
+function showSuccessModal(savedStudentName) {
+  const now = new Date();
+  $("modalDetails").innerHTML =
+    `<strong>Student:</strong> ${savedStudentName}<br>` +
+    `<strong>Class:</strong> ${cls} &nbsp;·&nbsp; <strong>Session:</strong> ${session}<br>` +
+    `<strong>Saved at:</strong> ${now.toLocaleString()}`;
+  successModal.classList.add("show");
+}
+function hideSuccessModal() { successModal.classList.remove("show"); }
+
+$("modalOkBtn").addEventListener("click", hideSuccessModal);
+successModal.addEventListener("click", (e) => {
+  if (e.target === successModal) hideSuccessModal();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && successModal.classList.contains("show")) hideSuccessModal();
+});
+
+/* ============================================================
+   6. IMAGE HELPERS
+   ============================================================ */
+const NO_PHOTO_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+  '<rect fill="#f5ede0" width="100" height="100"/>' +
+  '<text x="50" y="55" font-size="11" text-anchor="middle" fill="#7a3f0e" font-family="Arial">No Photo</text>' +
+  '</svg>'
+);
+
+function setImageWithFallback(imgEl, src, fallbackSrc) {
+  if (!imgEl) return;
+  imgEl.onerror = null;
+  imgEl.onerror = function () {
+    this.onerror = null;
+    if (fallbackSrc && this.src !== fallbackSrc) {
+      this.src = fallbackSrc;
+    } else {
+      this.src = NO_PHOTO_SVG;
+      this.classList.add("placeholder");
+    }
+  };
+  imgEl.src = src || fallbackSrc || NO_PHOTO_SVG;
+}
+
+/* ============================================================
+   7. BUILD SUBJECT ROWS
+   ============================================================ */
+const INPUT_FIELDS = ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf","pos"];
+
+function buildSubjectRows() {
+  const tbody = $("subjectsBody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  subjects.forEach(subj => {
+    const tr = document.createElement("tr");
+    tr.dataset.key = subj.key;
+    tr.innerHTML = `
+      <td class="subj-name">${subj.label}</td>
+      <td><input type="number" data-field="test1" min="0" max="100"></td>
+      <td><input type="number" data-field="test2" min="0" max="100"></td>
+      <td><input type="number" data-field="test3" min="0" max="100"></td>
+      <td><input type="number" data-field="ass1"  min="0" max="100"></td>
+      <td><input type="number" data-field="ass2"  min="0" max="100"></td>
+      <td><input type="number" data-field="ass3"  min="0" max="100"></td>
+      <td class="calc" data-calc="casum">–</td>
+      <td><input type="number" data-field="exam"   min="0" max="100"></td>
+      <td class="calc" data-calc="total">–</td>
+      <td><input type="number" data-field="cummBf" min="0" max="100"></td>
+      <td class="calc" data-calc="cummScore">–</td>
+      <td class="calc" data-calc="avg">–</td>
+      <td><input type="text"   data-field="pos" placeholder="1st"></td>
+      <td class="grade" data-calc="grade">–</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll("input").forEach(inp => {
+    inp.addEventListener("input", () => recalcRow(inp.closest("tr")));
+  });
+}
+
+function num(tr, field) {
+  const el = tr.querySelector(`input[data-field="${field}"]`);
+  if (!el) return 0;
+  const v = parseFloat(el.value);
+  return isNaN(v) ? 0 : v;
+}
+function setCalc(tr, key, value) {
+  const cell = tr.querySelector(`[data-calc="${key}"]`);
+  if (cell) cell.textContent = value;
+}
+
+function recalcRow(tr) {
+  const t1 = num(tr, "test1"), t2 = num(tr, "test2"), t3 = num(tr, "test3");
+  const a1 = num(tr, "ass1"), a2 = num(tr, "ass2"), a3 = num(tr, "ass3");
+  const exam = num(tr, "exam");
+  const cummBf = num(tr, "cummBf");
+
+  const sum6   = t1 + t2 + t3 + a1 + a2 + a3;
+  const casum  = sum6 / 6;
+  const total  = casum + (exam / 2);
+  const cummScore = (cummBf + total) / 2;
+  const avg    = cummScore;
+
+  let grade = "–";
+  if (avg >= 75) grade = "A";
+  else if (avg >= 65) grade = "B";
+  else if (avg >= 50) grade = "C";
+  else if (avg >= 40) grade = "D";
+  else if (avg > 0)   grade = "F";
+
+  const hasAny = sum6 > 0 || exam > 0 || cummBf > 0;
+  setCalc(tr, "casum",     hasAny ? casum.toFixed(2)     : "–");
+  setCalc(tr, "total",     hasAny ? total.toFixed(2)     : "–");
+  setCalc(tr, "cummScore", hasAny ? cummScore.toFixed(2) : "–");
+  setCalc(tr, "avg",       hasAny ? avg.toFixed(2)       : "–");
+  setCalc(tr, "grade",     hasAny ? grade                : "–");
+}
+
+/* ============================================================
+   8. SKILL ROWS
+   ============================================================ */
+function buildSkillRows(containerId, items) {
+  const tbody = document.getElementById(containerId);
+  if (!tbody) return;
+  tbody.innerHTML = "";
+  items.forEach(name => {
+    const tr = document.createElement("tr");
+    tr.dataset.name = name;
+    tr.innerHTML = `
+      <td class="subj-name">${name}</td>
+      <td><input type="number" min="1" max="5" data-field="rating"></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ============================================================
+   9. LOAD
+   ============================================================ */
+function loadData() {
+  setStatus("⏳ Loading record…", "info");
+
+  db.ref(dataPath).once("value")
+    .then(snap => {
+      const data = snap.val();
+      if (data) {
+        fillForm(data);
+        setStatus("✅ Existing record loaded.", "success");
+      } else {
+        fillForm(blankTemplate());
+        setStatus("📝 New record — fill in the fields and save.", "warning");
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      setStatus("❌ Load error: " + err.message, "error");
+      fillForm(blankTemplate());
+    });
+}
+
+function blankTemplate() {
+  return {
+    student: {
+      name: student, class: cls, term: "FIRST", session: session,
+      house: "", attendance: 0, outOf: 0, numberInClass: 0, image: ""
+    },
+    subjects: {},
+    characterDevelopment: {},
+    practicalSkills: {},
+    remarks: { teacher:"", house:"", principal:"", nextTerm:"", promotedTo:"" }
+  };
+}
+
+function fillForm(data) {
+  const s = data.student || {};
+  $("f_name").value           = s.name || student;
+  $("f_class").value          = s.class || cls;
+  $("f_term").value           = s.term || "FIRST";
+  $("f_session").value        = s.session || session;
+  $("f_house").value          = s.house || "";
+  $("f_attendance").value     = s.attendance ?? "";
+  $("f_outOf").value          = s.outOf ?? "";
+  $("f_numberInClass").value  = s.numberInClass ?? "";
+
+  /* ---------- Student images ---------- */
+  const studentImage = (s.image && String(s.image).trim()) ? String(s.image).trim() : "";
+  const fallback     = "img/student_image.png";
+
+  setImageWithFallback($("headerStudentPhoto"), studentImage || fallback, NO_PHOTO_SVG);
+  setImageWithFallback($("bigStudentPhoto"),    studentImage || fallback, NO_PHOTO_SVG);
+
+  $("headerStudentName").textContent  = s.name || student;
+  $("headerStudentClass").textContent = `${cls} · ${session}`;
+
+  const subjData = data.subjects || {};
+  document.querySelectorAll("#subjectsBody tr").forEach(tr => {
+    const key = tr.dataset.key;
+    let entry = null;
+    if (Array.isArray(subjData)) {
+      entry = subjData.find(x => (x.key || slug(x.name)) === key);
+    } else {
+      entry = subjData[key];
+    }
+    if (entry) {
+      INPUT_FIELDS.forEach(f => {
+        const inp = tr.querySelector(`input[data-field="${f}"]`);
+        if (inp && entry[f] !== undefined && entry[f] !== "") inp.value = entry[f];
+      });
+    }
+    recalcRow(tr);
+  });
+
+  fillSkillSection("characterBody", data.characterDevelopment);
+  fillSkillSection("practicalBody", data.practicalSkills);
+
+  const r = data.remarks || {};
+  $("r_teacher").value   = r.teacher   || r["Teacher Remark"]        || "";
+  $("r_house").value     = r.house     || r["House masters Remark"]  || r["House Master Remark"] || "";
+  $("r_principal").value = r.principal || r["Principal Remark"]      || "";
+  $("r_nextTerm").value  = r.nextTerm  || r["Next Term"]             || "";
+  $("r_promotedTo").value= r.promotedTo|| r["Promoted To"]           || "";
+}
+
+function fillSkillSection(tbodyId, dataObj) {
+  if (!dataObj) return;
+  const list = Array.isArray(dataObj) ? dataObj : Object.values(dataObj);
+  document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
+    const name = tr.dataset.name;
+    const found = list.find(x => (x.trait || x.skill) === name);
+    if (found) {
+      const inp = tr.querySelector('input[data-field="rating"]');
+      if (inp) inp.value = found.rating ?? "";
+    }
+  });
+}
+
+function slug(str) {
+  return (str || "").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+}
+
+/* ============================================================
+   10. SAVE
+   ============================================================ */
+function collectData() {
+  const subjectsOut = {};
+  document.querySelectorAll("#subjectsBody tr").forEach(tr => {
+    const key = tr.dataset.key;
+    const entry = {};
+    ["test1","test2","test3","ass1","ass2","ass3","exam","cummBf"].forEach(f => {
+      const inp = tr.querySelector(`input[data-field="${f}"]`);
+      entry[f] = (inp && inp.value !== "") ? Number(inp.value) : "";
+    });
+    const pos = tr.querySelector('input[data-field="pos"]');
+    entry.pos = pos ? pos.value : "";
+    entry.casum     = tr.querySelector('[data-calc="casum"]').textContent;
+    entry.total     = tr.querySelector('[data-calc="total"]').textContent;
+    entry.cummScore = tr.querySelector('[data-calc="cummScore"]').textContent;
+    entry.avg       = tr.querySelector('[data-calc="avg"]').textContent;
+    entry.grade     = tr.querySelector('[data-calc="grade"]').textContent;
+    subjectsOut[key] = entry;
+  });
+
+  const charOut = {};
+  document.querySelectorAll("#characterBody tr").forEach(tr => {
+    const inp = tr.querySelector('input[data-field="rating"]');
+    charOut[tr.dataset.name] = { trait: tr.dataset.name, rating: inp.value === "" ? "" : Number(inp.value) };
+  });
+
+  const pracOut = {};
+  document.querySelectorAll("#practicalBody tr").forEach(tr => {
+    const inp = tr.querySelector('input[data-field="rating"]');
+    pracOut[tr.dataset.name] = { skill: tr.dataset.name, rating: inp.value === "" ? "" : Number(inp.value) };
+  });
+
+  // Preserve the existing image path if it was loaded from the DB
+  const bigImg = $("bigStudentPhoto");
+  let existingImage = "";
+  if (bigImg && bigImg.dataset && bigImg.dataset.dbImage) {
+    existingImage = bigImg.dataset.dbImage;
+  }
+
+  return {
+    student: {
+      name: $("f_name").value, class: $("f_class").value,
+      term: $("f_term").value, session: $("f_session").value,
+      house: $("f_house").value,
+      attendance: $("f_attendance").value === "" ? "" : Number($("f_attendance").value),
+      outOf: $("f_outOf").value === "" ? "" : Number($("f_outOf").value),
+      numberInClass: $("f_numberInClass").value === "" ? "" : Number($("f_numberInClass").value),
+      image: existingImage
+    },
+    subjects: subjectsOut,
+    characterDevelopment: charOut,
+    practicalSkills: pracOut,
+    remarks: {
+      teacher: $("r_teacher").value,
+      house: $("r_house").value,
+      principal: $("r_principal").value,
+      nextTerm: $("r_nextTerm").value,
+      promotedTo: $("r_promotedTo").value
+    },
+    meta: {
+      updatedAt: new Date().toISOString(),
+      updatedBy: (auth.currentUser && auth.currentUser.email) || "unknown"
+    }
+  };
+}
+
+function save() {
+  setStatus("💾 Saving…", "info");
+  const payload = collectData();
+  db.ref(dataPath).set(payload)
+    .then(() => {
+      setStatus("✅ Saved successfully.", "success");
+      showSuccessModal(payload.student.name || student);
+    })
+    .catch(err => {
+      console.error(err);
+      setStatus("❌ Save failed: " + err.message, "error");
+    });
+}
+
+/* ============================================================
+   11. EVENTS
+   ============================================================ */
+$("saveBtn").addEventListener("click", save);
+$("printBtn").addEventListener("click", () => window.print());
+$("reloadBtn").addEventListener("click", () => { if (confirm("Reload and discard unsaved changes?")) loadData(); });
+$("backBtn").addEventListener("click", () => { window.location.href = "dashboard.html"; });
+$("logoutBtn").addEventListener("click", async () => {
+  if (!confirm("Log out?")) return;
+  await auth.signOut();
+  sessionStorage.clear();
+  window.location.replace("login.html");
+});
+
+/* ============================================================
+   12. INIT (each step protected)
+   ============================================================ */
+try { buildSubjectRows(); } catch (e) { console.error("buildSubjectRows failed:", e); }
+try { buildSkillRows("characterBody", CHARACTER_TRAITS); } catch (e) { console.error("characterBody failed:", e); }
+try { buildSkillRows("practicalBody", PRACTICAL_SKILLS); } catch (e) { console.error("practicalBody failed:", e); }
+try { loadData(); } catch (e) { console.error("loadData failed:", e); }
+</script>
+</body>
+</html>
