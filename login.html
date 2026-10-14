@@ -11,41 +11,93 @@
 
 <style>
   * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+
   body {
-    margin: 0;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #f7efe0 0%, #e8d7ba 100%);
     font-family: 'Segoe UI', Arial, sans-serif;
     color: #1f1c18;
+    padding: 24px 16px;
+    position: relative;
+    overflow-x: hidden;
+
+    /* Background image behind everything */
+    background-color: #f7efe0;
+    background-image: url('img/computer_lab.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
   }
+
+  /* Soft overlay so the background image doesn't overpower the card */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg,
+                rgba(247, 239, 224, 0.85) 0%,
+                rgba(232, 215, 186, 0.85) 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ---------- LOGIN CARD ---------- */
   .login-card {
-    background: white;
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.96);
     border: 2px solid #b87c44;
     border-radius: 14px;
-    padding: 36px 32px;
+    padding: 32px 32px 28px;
     width: 100%;
-    max-width: 420px;
-    box-shadow: 0 10px 30px rgba(122, 63, 14, 0.18);
+    max-width: 440px;
+    box-shadow: 0 14px 40px rgba(122, 63, 14, 0.22);
+    backdrop-filter: blur(2px);
   }
+
+  /* ---------- LOGO ---------- */
+  .logo-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .logo-wrap img {
+    width: 96px;
+    height: 96px;
+    object-fit: contain;
+    display: block;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #b87c44;
+    box-shadow: 0 4px 12px rgba(122, 63, 14, 0.18);
+    padding: 6px;
+  }
+
   h1 {
-    margin: 0 0 6px;
-    font-size: 1.5rem;
+    margin: 0 0 4px;
+    font-size: 1.45rem;
     color: #7a3f0e;
     text-align: center;
+    letter-spacing: 0.5px;
   }
   .subtitle {
     text-align: center;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: #6f6456;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
+    letter-spacing: 0.3px;
   }
+
   label {
     display: block;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     margin: 14px 0 6px;
     color: #5f3d1a;
   }
@@ -57,12 +109,14 @@
     font-size: 0.95rem;
     background: #fdfaf5;
     transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
   }
   input:focus {
     outline: none;
     border-color: #7a3f0e;
     background: white;
   }
+
   button {
     width: 100%;
     margin-top: 22px;
@@ -76,6 +130,7 @@
     cursor: pointer;
     box-shadow: 4px 4px 0 #5f2e0a;
     transition: 0.1s;
+    font-family: inherit;
   }
   button:hover:not(:disabled) {
     transform: translate(2px, 2px);
@@ -86,6 +141,7 @@
     cursor: not-allowed;
     box-shadow: none;
   }
+
   .status {
     margin-top: 16px;
     padding: 10px 14px;
@@ -98,17 +154,30 @@
   .status.error   { display: block; background: #ffcdd2; color: #8b1a1a; }
   .status.info    { display: block; background: #bbdefb; color: #0d3b66; }
   .status.success { display: block; background: #c8e6c9; color: #1e4a2a; }
+
   .footer {
     margin-top: 20px;
     text-align: center;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #9a8b78;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 480px) {
+    .login-card { padding: 26px 20px 22px; }
+    .logo-wrap img { width: 80px; height: 80px; }
+    h1 { font-size: 1.25rem; }
   }
 </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <div class="login-card">
+  <div class="logo-wrap">
+    <img src="img/logo.png" alt="Wisdom Foundation Logo"
+         onerror="this.style.display='none';">
+  </div>
+
   <h1>🏫 Wisdom Foundation</h1>
   <div class="subtitle">First Term Records Portal · 2026/2027</div>
 
@@ -146,13 +215,56 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
 /* ============================================================
-   2. HARDCODED CREDENTIALS (must ALSO match)
+   2. BLOCK CTRL+S / CMD+S  +  BLOCK CTRL+P (optional)  +  F12
+   ============================================================ */
+document.addEventListener("keydown", (e) => {
+  const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+  const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+
+  // Ctrl/Cmd + S  → block save
+  if (cmdOrCtrl && e.key.toLowerCase() === "s") {
+    e.preventDefault();
+    e.stopPropagation();
+    alert("⚠️ Saving the page is disabled on this portal.");
+    return false;
+  }
+
+  // Optional: block Ctrl/Cmd + P (print) — remove if you want to allow printing
+  if (cmdOrCtrl && e.key.toLowerCase() === "p") {
+    e.preventDefault();
+    e.stopPropagation();
+    alert("⚠️ Printing is disabled on the login page.");
+    return false;
+  }
+
+  // Optional: block Ctrl/Cmd + U (view source)
+  if (cmdOrCtrl && e.key.toLowerCase() === "u") {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  }
+}, true);
+
+/* Extra layer — some browsers still show the save dialog via Ctrl+Shift+S */
+document.addEventListener("keydown", (e) => {
+  const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+  const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
+  if (cmdOrCtrl && e.shiftKey && e.key.toLowerCase() === "s") {
+    e.preventDefault();
+    e.stopPropagation();
+    alert("⚠️ Saving the page is disabled on this portal.");
+    return false;
+  }
+}, true);
+
+/* ============================================================
+   3. HARDCODED CREDENTIALS (must ALSO match)
    ============================================================ */
 const HARDCODED_EMAIL    = "wisfos4edu@gmail.com";
 const HARDCODED_PASSWORD = "admin@wisfos";
 
 /* ============================================================
-   3. DOM
+   4. DOM
    ============================================================ */
 const form     = document.getElementById("loginForm");
 const emailEl  = document.getElementById("email");
@@ -170,14 +282,14 @@ function clearStatus() {
 }
 
 /* ============================================================
-   4. IF ALREADY LOGGED IN (sessionStorage flag set)
+   5. IF ALREADY LOGGED IN
    ============================================================ */
 if (sessionStorage.getItem("wfs_logged_in") === "true") {
   window.location.replace("dashboard.html");
 }
 
 /* ============================================================
-   5. LOGIN HANDLER
+   6. LOGIN HANDLER
    ============================================================ */
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -191,13 +303,13 @@ form.addEventListener("submit", async (e) => {
     return;
   }
 
-  // ---- CHECK 1: hardcoded match ----
+  // CHECK 1: hardcoded match
   if (email !== HARDCODED_EMAIL || password !== HARDCODED_PASSWORD) {
     setStatus("❌ Invalid email or password.", "error");
     return;
   }
 
-  // ---- CHECK 2: Firebase Auth ----
+  // CHECK 2: Firebase Auth
   btn.disabled = true;
   btn.textContent = "Signing in…";
   setStatus("⏳ Verifying credentials…", "info");
@@ -205,7 +317,6 @@ form.addEventListener("submit", async (e) => {
   try {
     await auth.signInWithEmailAndPassword(email, password);
 
-    // Both checks passed
     sessionStorage.setItem("wfs_logged_in", "true");
     sessionStorage.setItem("wfs_user_email", email);
     sessionStorage.setItem("wfs_login_time", new Date().toISOString());

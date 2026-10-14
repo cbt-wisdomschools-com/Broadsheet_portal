@@ -12,16 +12,46 @@
 
 <style>
   * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+
   body {
-    margin: 0;
     min-height: 100vh;
-    background: linear-gradient(135deg, #f7efe0 0%, #e8d7ba 100%);
     font-family: 'Segoe UI', Arial, sans-serif;
     color: #1f1c18;
     padding: 30px 20px;
-  }
-  .wrap { max-width: 780px; margin: 0 auto; }
+    position: relative;
+    overflow-x: hidden;
 
+    /* Background image behind everything */
+    background-color: #f7efe0;
+    background-image: url('img/background-logo.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  /* Soft overlay so the background image doesn't overpower content */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg,
+                rgba(247, 239, 224, 0.88) 0%,
+                rgba(232, 215, 186, 0.88) 100%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------- HEADER ---------- */
   header {
     display: flex;
     align-items: center;
@@ -29,21 +59,58 @@
     margin-bottom: 24px;
     flex-wrap: wrap;
     gap: 12px;
+    background: rgba(255,255,255,0.94);
+    border: 2px solid #b87c44;
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 6px 18px rgba(122, 63, 14, 0.12);
+    backdrop-filter: blur(2px);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 0;
+  }
+  .brand .logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #b87c44;
+    padding: 5px;
+    box-shadow: 0 3px 8px rgba(122, 63, 14, 0.18);
+    flex-shrink: 0;
+  }
+  .brand .titles {
+    min-width: 0;
   }
   header h1 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     color: #7a3f0e;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
   }
   header .user {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: #6f6456;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+
   .header-actions {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    align-items: center;
   }
+
   .seed-btn {
     padding: 8px 18px;
     background: #2b6e4e;
@@ -51,10 +118,11 @@
     border: 2px solid #1f5a3e;
     border-radius: 40px;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     cursor: pointer;
     box-shadow: 3px 3px 0 #1a452f;
     transition: 0.1s;
+    font-family: inherit;
   }
   .seed-btn:hover {
     transform: translate(2px, 2px);
@@ -67,22 +135,25 @@
     border: 2px solid #5f0f0f;
     border-radius: 40px;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     cursor: pointer;
     box-shadow: 3px 3px 0 #3d0a0a;
     transition: 0.1s;
+    font-family: inherit;
   }
   .logout-btn:hover {
     transform: translate(2px, 2px);
     box-shadow: 1px 1px 0 #3d0a0a;
   }
 
+  /* ---------- CARD ---------- */
   .card {
-    background: white;
+    background: rgba(255, 255, 255, 0.96);
     border: 2px solid #b87c44;
     border-radius: 14px;
     padding: 28px 26px;
-    box-shadow: 0 8px 24px rgba(122, 63, 14, 0.12);
+    box-shadow: 0 10px 28px rgba(122, 63, 14, 0.14);
+    backdrop-filter: blur(2px);
   }
   .card h2 {
     margin: 0 0 4px;
@@ -146,6 +217,7 @@
     cursor: pointer;
     transition: 0.1s;
     border: 2px solid;
+    font-family: inherit;
   }
   .btn-primary {
     background: #b55a1a;
@@ -198,6 +270,12 @@
     display: none;
   }
   .preview.show { display: block; }
+
+  @media (max-width: 600px) {
+    .brand .logo { width: 52px; height: 52px; }
+    header h1 { font-size: 1.15rem; }
+    header { padding: 12px 14px; }
+  }
 </style>
 </head>
 <body>
@@ -205,20 +283,21 @@
 <div class="wrap">
 
   <header>
-    <div>
-      <h1>🏫 Wisdom Foundation Dashboard</h1>
-      <div class="user" id="userInfo">—</div>
+    <div class="brand">
+      <img class="logo" src="img/logo.png" alt="Wisdom Foundation Logo"
+           onerror="this.style.display='none';">
+      <div class="titles">
+        <h1>🏫 Wisdom Foundation Dashboard</h1>
+        <div class="user" id="userInfo">—</div>
+      </div>
     </div>
-    <!--<div class="header-actions">
-      <button class="seed-btn" id="seedBtn">🌱 Seed</button>
-      <button class="logout-btn" id="logoutBtn">Logout</button>
-    </div>-->
+
     <div class="header-actions">
-  <!--<button class="seed-btn" id="ieBtn" style="background:#0d6b7a; border-color:#0a4f5a; box-shadow:3px 3px 0 #06333a;">📥📤 Import/Export</button>-->
-  <!--<button class="seed-btn" id="seedBtn">🌱 Seed</button>-->
-  <button class="logout-btn" id="logoutBtn">Logout</button>
-  <!--<button class="seed-btn" id="exportJsonBtn" style="background:#6f4f2a; border-color:#5f3d1a; box-shadow:3px 3px 0 #4a3316;">📦 Export JSON</button>-->
-</div>
+      <!--<button class="seed-btn" id="ieBtn" style="background:#0d6b7a; border-color:#0a4f5a; box-shadow:3px 3px 0 #06333a;">📥📤 Import/Export</button>-->
+      <!--<button class="seed-btn" id="seedBtn">🌱 Seed</button>-->
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+      <!--<button class="seed-btn" id="exportJsonBtn" style="background:#6f4f2a; border-color:#5f3d1a; box-shadow:3px 3px 0 #4a3316;">📦 Export JSON</button>-->
+    </div>
   </header>
 
   <div class="card">
@@ -290,7 +369,6 @@ if (sessionStorage.getItem("wfs_logged_in") !== "true") {
   window.location.replace("login.html");
 }
 
-// Also verify Firebase still has a user (in case of refresh)
 auth.onAuthStateChanged((user) => {
   if (!user) {
     sessionStorage.removeItem("wfs_logged_in");
@@ -302,7 +380,6 @@ auth.onAuthStateChanged((user) => {
 
 /* ============================================================
    3. USERS ARRAY — grouped by class
-   (Pulled from Part 6; duplicates/passwords ignored for now)
    ============================================================ */
 const USERS = {
   "JSS1": [
@@ -387,7 +464,7 @@ const logoutBtn     = document.getElementById("logoutBtn");
 const seedBtn       = document.getElementById("seedBtn");
 const statusEl      = document.getElementById("status");
 const previewEl     = document.getElementById("preview");
-const ieBtn = document.getElementById("ieBtn");
+const ieBtn         = document.getElementById("ieBtn");
 
 function setStatus(msg, type = "info") {
   statusEl.className = "status " + type;
@@ -418,8 +495,6 @@ function checkReady() {
 /* ============================================================
    5. DROPDOWN LOGIC
    ============================================================ */
-
-// Session change → enable class
 sessionSelect.addEventListener("change", () => {
   clearStatus();
   if (sessionSelect.value) {
@@ -427,14 +502,12 @@ sessionSelect.addEventListener("change", () => {
   } else {
     classSelect.disabled = true;
   }
-  // reset downstream
   classSelect.value = "";
   studentSelect.innerHTML = '<option value="">— Select student —</option>';
   studentSelect.disabled = true;
   checkReady();
 });
 
-// Class change → populate students
 classSelect.addEventListener("change", () => {
   clearStatus();
   const cls = classSelect.value;
@@ -464,7 +537,6 @@ classSelect.addEventListener("change", () => {
   checkReady();
 });
 
-// Student change → enable next
 studentSelect.addEventListener("change", checkReady);
 
 /* ============================================================
@@ -512,13 +584,12 @@ resetBtn.addEventListener("click", () => {
   checkReady();
 });
 
-  /* ============================================================
-     9. IMPORT EXPORT BUTTONS
-     ============================================================ */
-
-   ieBtn.addEventListener("click", () => {
-    window.location.href = "import-export.html";
-  });
+/* ============================================================
+   9. IMPORT EXPORT BUTTON
+   ============================================================ */
+ieBtn.addEventListener("click", () => {
+  window.location.href = "import-export.html";
+});
 
 /* ============================================================
    10. LOGOUT
@@ -535,17 +606,16 @@ logoutBtn.addEventListener("click", async () => {
   sessionStorage.removeItem("wfs_login_time");
   window.location.replace("login.html");
 });
-/* ============================================================
-   12. export to json
-   ============================================================ */
 
-  document.getElementById("exportJsonBtn").addEventListener("click", () => {
+/* ============================================================
+   11. EXPORT TO JSON
+   ============================================================ */
+document.getElementById("exportJsonBtn").addEventListener("click", () => {
   window.location.href = "export-json.html";
 });
-  
 
 /* ============================================================
-   13. INIT
+   12. INIT
    ============================================================ */
 checkReady();
 </script>
